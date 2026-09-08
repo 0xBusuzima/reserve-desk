@@ -5,7 +5,7 @@ import type { Params } from './types'
  *
  * `whitepaper` stated verbatim in whitepaper v0.1.
  * `derived`    the whitepaper states the rule, the number follows from it.
- * `assumed`    the whitepaper redacts the number. This is my placeholder.
+ * `assumed`    the whitepaper holds the number back. This is my placeholder.
  */
 export type Provenance = 'whitepaper' | 'derived' | 'assumed'
 
@@ -55,7 +55,7 @@ export const PROVENANCE: Record<keyof Params, Provenance> = {
 /**
  * The baseline parameter set.
  *
- * Whitepaper-stated values are exact. Redacted values are chosen to satisfy
+ * Whitepaper-stated values are exact. Unpublished ones are chosen to satisfy
  * every qualitative constraint the whitepaper *does* state:
  *
  *  - "cuts are immediate, raises must be earned" => rateCut > rateRaise.
@@ -71,7 +71,7 @@ export const PROVENANCE: Record<keyof Params, Provenance> = {
  * The issuance budget (900M) divided by the base rate sets the nominal life
  * of the issue: 250,000/day at m = 1.0 runs 3,600 days, a shade under ten
  * years. Raise the rate and the budget is gone in a cycle; that trade-off is
- * the single most consequential redacted number in the whitepaper.
+ * the single most consequential number the whitepaper holds back.
  */
 export const DEFAULT_PARAMS: Params = {
   hardCap: 1_000_000_000,
@@ -148,7 +148,7 @@ export const PARAM_META: ParamMeta[] = [
     max: 2_000_000,
     step: 50_000,
     unit: 'token',
-    help: 'Tokens issued per day at m = 1.0, split pro rata across all branches. Redacted in the whitepaper.',
+    help: 'Tokens issued per day at m = 1.0, split pro rata across all branches. Not published yet.',
     section: 'policy',
   },
   {

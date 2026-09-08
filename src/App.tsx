@@ -627,7 +627,7 @@ export default function App() {
                         <td>{meta.label}</td>
                         <td>
                           <span className={`badge ${prov}`}>
-                            {prov === 'whitepaper' ? 'STATED' : prov === 'derived' ? 'DERIVED' : 'REDACTED'}
+                            {prov === 'whitepaper' ? 'STATED' : prov === 'derived' ? 'DERIVED' : 'UNPUBLISHED'}
                           </span>
                         </td>
                         <td className="num">{String(params[meta.key])}</td>
@@ -646,7 +646,7 @@ export default function App() {
                 tone="ok"
               />
               <Stat
-                label="Redacted"
+                label="Still unpublished"
                 value={int(Object.values(PROVENANCE).filter((p) => p === 'assumed').length)}
                 foot="you are supplying these"
                 tone="warn"

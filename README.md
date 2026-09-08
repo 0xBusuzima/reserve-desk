@@ -2,7 +2,7 @@
 
 **A monetary policy simulator and banker's console for [The Standard Reserve](https://www.standardreserve.xyz/).**
 
-The Standard Reserve whitepaper specifies a complete onchain central bank, covering issuance, expansion, reserves, exits, auctions and defense, and then publishes its launch parameter table with **every value blank**, closing with *"final parameters will be announced closer to launch."*
+The Standard Reserve whitepaper specifies a complete onchain central bank, covering issuance, expansion, reserves, exits, auctions and defense, and then publishes its launch parameter table with **every value blank**, closing with *"final parameters will be announced closer to launch."* That is deliberate, and it is their call to make.
 
 So the mechanism is public and the numbers are not. You can read the whitepaper end to end and still not answer the only questions that matter to someone holding a charter:
 
@@ -11,7 +11,7 @@ So the mechanism is public and the numbers are not. You can read the whitepaper 
 - How much can the bank actually defend, and is it limited by its vault or by the pool?
 - Under what conditions does compounding beat holding, and when does it stop?
 
-Reserve Desk answers all four. I implemented whitepaper v0.1 as an executable model, let you supply every redacted number yourself, and run the whole economy day by day so you can see what your assumptions imply.
+Reserve Desk answers all four. I implemented whitepaper v0.1 as an executable model, let you supply every unpublished number yourself, and run the whole economy day by day so you can see what your assumptions imply.
 
 > **Unofficial.** I am not affiliated with The Standard Reserve and this is not endorsed by them. The protocol is pre launch: no token, no NFT, no deployed contracts. Nothing here is investment advice.
 
@@ -19,7 +19,7 @@ Reserve Desk answers all four. I implemented whitepaper v0.1 as an executable mo
 
 ## What it does
 
-**Policy Lab.** Every parameter the whitepaper redacts is a slider, tagged with its provenance: `STATED` (verbatim in the whitepaper), `DERIVED` (follows from a stated rule), or `REDACTED` (your assumption). You always know which numbers are the protocol's and which are yours. Moving a control scrolls the page to the section that control changes.
+**Policy Lab.** Every parameter the whitepaper holds back is a slider, tagged with its provenance: `STATED` (verbatim in the whitepaper), `DERIVED` (follows from a stated rule), or `UNPUBLISHED` (your assumption). You always know which numbers are the protocol's and which are yours. Moving a control scrolls the page to the section that control changes.
 
 **Scenario engine.** Five flow regimes, being launch melt up, slow bleed, bank run, chop and dead pool, driving a full simulation of the pool, the fee engine, both vaults, the license auction, the charter auction, retirements, the resolution fee, and dormancy revocation.
 
@@ -89,8 +89,8 @@ Every function carries the whitepaper section it implements.
 
 Read [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) before you trust a number. In short:
 
-- **Redacted parameters are assumptions.** The defaults satisfy every qualitative constraint the whitepaper states: cuts exceed raises, the resolution ceiling sits under the 70% revocation fee, the license floor is two days of a branch's yield, and buybacks bound near 5% of depth per day. They are still guesses.
-- **The multiplier rule is reconstructed.** Equation 5.2 is redacted. The engine models the smallest rule consistent with everything the whitepaper says about it.
+- **Unpublished parameters are assumptions.** The defaults satisfy every qualitative constraint the whitepaper states: cuts exceed raises, the resolution ceiling sits under the 70% revocation fee, the license floor is two days of a branch's yield, and buybacks bound near 5% of depth per day. They are still guesses.
+- **The multiplier rule is reconstructed.** Equation 5.2 is not published. The engine models the smallest rule consistent with everything the whitepaper says about it.
 - **Two genuine ambiguities in the whitepaper** are documented rather than papered over: whether expansion licenses are paid from the ledger balance or from minted tokens, and how the 2% dormancy bounty composes with the 70% revocation fee. Both readings are stated in the methodology, and the engine's choice is marked in the code.
 - **The pool is constant product.** The real market is a hooked Uniswap v4 pool with a full range protocol owned position, so this gets depth and price impact directionally right and nothing about MEV or third party concentrated liquidity right at all.
 
@@ -137,7 +137,7 @@ Neither card carries a hardcoded figure. The genesis card reads the same snapsho
 
 ## Contributing
 
-The most valuable contributions are corrections. If you can show that a mechanic is modelled wrong, or that a redacted parameter has since been disclosed, open an issue with the whitepaper section or the announcement and I will fix it.
+The most valuable contributions are corrections. If you can show that a mechanic is modelled wrong, or that a held back parameter has since been disclosed, open an issue with the whitepaper section or the announcement and I will fix it.
 
 ## Licence
 
