@@ -116,6 +116,16 @@ node scripts/fetch-genesis.mjs --dry-run
 
 The script anchors on the counter's own props instead of on a number pattern, which matters more than it sounds: at the time of writing the chunk declares `const ee=1e3,se=350,te=350` where `te` is an unrelated timeout that happens to equal the allocated count.
 
+### Share card
+
+[`scripts/make-card.mjs`](scripts/make-card.mjs) renders the mint progress as a 1600x900 image for posting. It reads the same `public/genesis.json`, so the card can never disagree with the site, and screenshots itself with whatever Chromium is already installed.
+
+```bash
+node scripts/make-card.mjs
+```
+
+Output is [`share/genesis-card.png`](share/genesis-card.png) at 2x. Re-run it whenever the count moves.
+
 ---
 
 ## Contributing
