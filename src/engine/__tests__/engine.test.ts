@@ -16,6 +16,7 @@ import {
   resolutionFee,
   runScenario,
   simulate,
+  compareRegimes,
 } from '..'
 import { addPol, buy, makePool, sell, spot } from '../pool'
 import type { Params } from '../types'
@@ -371,5 +372,40 @@ describe('parameter sanity guards', () => {
         }
       }
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Published findings. These back claims made on the site, so they are asserted
+// rather than left to a one-off script.
+// ---------------------------------------------------------------------------
+
+describe('the policy signal reads sign, not size', () => {
+  it('rewards a consistent trickle over a larger but choppy inflow', () => {
+    const [chop, bleed] = compareRegimes(P, ['chop', 'slow-bleed'], 365, 12)
+
+    // Chop takes in materially more capital than the bleed does. Sells are
+    // capped at the float outside the pool, so a scenario cannot always
+    // express the outflow it wants, and realised flow is what policy reads.
+    expect(chop.realisedEth).toBeGreaterThan(bleed.realisedEth)
+
+    // And is paid less for it, because the multiplier steps on the sign of
+    // the two epoch signal and never on its magnitude. Chop flips sign
+    // constantly and gives back three times more per cut than it earns per
+    // raise; the bleed drifts one way and ratchets up.
+    expect(chop.issued).toBeLessThan(bleed.issued)
+    expect(chop.meanM).toBeLessThan(bleed.meanM)
+  })
+
+  it('is the sign rule doing it, not the scenario shapes', () => {
+    // Equalise the step sizes and the gap narrows sharply. It does not close,
+    // because a sign rule is still blind to how much capital moved.
+    const symmetric: Params = { ...P, rateCut: 0.05, rateRaise: 0.05 }
+    const [chopA, bleedA] = compareRegimes(P, ['chop', 'slow-bleed'], 365, 12)
+    const [chopB, bleedB] = compareRegimes(symmetric, ['chop', 'slow-bleed'], 365, 12)
+
+    const gapAsymmetric = bleedA.meanM - chopA.meanM
+    const gapSymmetric = bleedB.meanM - chopB.meanM
+    expect(gapSymmetric).toBeLessThan(gapAsymmetric)
   })
 })

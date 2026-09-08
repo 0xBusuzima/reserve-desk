@@ -4,6 +4,7 @@ import {
   PARAM_META,
   PROVENANCE,
   SCENARIOS,
+  compareRegimes,
   getScenario,
   issuanceBudget,
   makeCohorts,
@@ -113,6 +114,11 @@ export default function App() {
     return out
   }, [D])
 
+  // The sign-versus-size comparison, computed here rather than quoted, so the
+  // claim moves when you move the parameters that produce it.
+  const regimes = useMemo(() => compareRegimes(params, ['chop', 'slow-bleed'], 365, 10), [params])
+  const [chopRun, bleedRun] = regimes
+
   const budget = issuanceBudget(params)
   const burnedShare = last.burned / params.hardCap
   const dayLabel = (i: number) => `d${i}`
@@ -219,6 +225,7 @@ export default function App() {
             <nav className="toc">
               <a href="#genesis">Genesis</a>
               <a href="#verdict">Verdict</a>
+              <a href="#findings">Findings</a>
               <a href="#policy">Policy</a>
               <a href="#supply">Supply</a>
               <a href="#defense">Defense</a>
@@ -354,6 +361,109 @@ export default function App() {
                 }
                 tone={result.violations.length === 0 ? 'ok' : 'bad'}
               />
+            </div>
+          </section>
+
+          {/* Findings */}
+          <section id="findings" className={cls('findings')}>
+            <div className="sec-head">
+              <h2>What running it turned up</h2>
+              <span className="ref">four things I did not expect from reading alone</span>
+            </div>
+            <p className="sec-note">
+              These are the reason the tool exists rather than a thread. Each one is either
+              checkable against the whitepaper in a minute, or reproducible by running the model
+              yourself. If any of them is wrong I would rather know.
+            </p>
+
+            <div className="card finding">
+              <div className="finding-head">
+                <span className="badge assumed">01</span>
+                <h3>The policy signal reads sign, not size</h3>
+              </div>
+              <p>
+                Section 4 sets the signal to Fₙ₋₁ + Fₙ₋₂ and section 5 steps the multiplier on it.
+                Nothing published says the step scales with how much capital actually moved, and
+                the multiplier is drawn as fixed per epoch steps. Under that reading, a market can
+                take in far more ETH and be paid less for it, because what the bank rewards is
+                consistency of direction rather than weight of capital.
+              </p>
+              <div className="grid g4" style={{ marginTop: 14 }}>
+                <Stat
+                  label="Chop, net capital in"
+                  value={eth(chopRun.realisedEth, 0)}
+                  foot="oscillates around zero, sign flips constantly"
+                />
+                <Stat
+                  label="Slow bleed, net capital in"
+                  value={eth(bleedRun.realisedEth, 0)}
+                  foot="drifts one way, sign stays put"
+                />
+                <Stat
+                  label="Chop issued"
+                  value={compact(chopRun.issued, 1)}
+                  foot={`avg multiplier ${chopRun.meanM.toFixed(2)}×`}
+                  tone="bad"
+                />
+                <Stat
+                  label="Slow bleed issued"
+                  value={compact(bleedRun.issued, 1)}
+                  foot={`avg multiplier ${bleedRun.meanM.toFixed(2)}×`}
+                  tone="ok"
+                />
+              </div>
+              <p className="foot-note" style={{ marginTop: 12 }}>
+                Ten seeds, 365 days each, at whatever parameters you currently have set. The gap
+                narrows if the cut and the raise are made equal, so the asymmetry amplifies it,
+                but it does not close, because a sign rule cannot see magnitude either way. If
+                equation 5.2 does scale by signal size, this finding disappears, and that is
+                precisely why the equation matters.
+              </p>
+            </div>
+
+            <div className="card finding">
+              <div className="finding-head">
+                <span className="badge assumed">02</span>
+                <h3>Section 10 adds up to 102%</h3>
+              </div>
+              <p>
+                For one dormant balance the whitepaper lists an informant bounty of 2%, a
+                revocation fee of 70%, and 30% returned to the wallet. That is 102% of a balance
+                that only has 100% in it. The engine assumes the bounty comes out of the fee, so
+                the burn and redistribute halves apply to 68%, but that is my guess. The other
+                reading has the informant paid by the victim.
+              </p>
+            </div>
+
+            <div className="card finding">
+              <div className="finding-head">
+                <span className="badge assumed">03</span>
+                <h3>What expansion licenses are paid with is unresolved, and it decides a flywheel</h3>
+              </div>
+              <p>
+                Section 2 says bankers spend <em>earned</em> $STANDARD on licenses and section 13
+                calls it the largest supply sink. If that means the accrued balance at the bank,
+                expansion is self financing and burns tokens that were never minted. If it means
+                ERC-20 tokens in a wallet, an expander has to either retire the branch they are
+                trying to add to, or buy on the open market, which turns the largest supply sink
+                into a source of buy pressure as well. Those are very different economies.
+              </p>
+            </div>
+
+            <div className="card finding">
+              <div className="finding-head">
+                <span className="badge assumed">04</span>
+                <h3>On day one there is nothing to sell</h3>
+              </div>
+              <p>
+                The supply identity in section 3 says circulating supply is 100M plus withdrawals
+                minus burns, and the 100M is the genesis position locked in the pool forever. So
+                at launch the entire float is the pool, and a token can only reach a wallet when a
+                banker retires a branch and pays the resolution fee to do it. Sell pressure has to
+                be manufactured, at cost, before it can exist. It follows that the early net flow
+                signal is measured on a book that is structurally one sided, and that a run cannot
+                start on day one no matter how badly the market wants one.
+              </p>
             </div>
           </section>
 

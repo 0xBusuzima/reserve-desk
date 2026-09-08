@@ -444,3 +444,30 @@ footer { border-top: 1px solid var(--line); margin-top: 44px; padding-top: 20px;
 .toc { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; padding: 10px 0 0; }
 .toc a { color: var(--ink-2); }
 .toc a:hover { color: var(--gold); }
+
+/* Findings. Each one is an argument, so it gets room to breathe rather than
+   being squeezed into the stat grid. */
+.finding { margin-bottom: 14px; }
+
+.finding-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.finding-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.finding p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 13.5px;
+  max-width: 900px;
+}
+
+.finding p em { color: var(--ink); font-style: normal; font-weight: 600; }
