@@ -98,9 +98,23 @@ Where this model and the deployed contracts disagree, the contracts are right.
 
 ---
 
-## Genesis mint
+## Genesis mint tracker
 
-The tracker in the app reads from [`src/config.ts`](src/config.ts). The protocol is pre launch, so there is nothing on chain to query and the number is transcribed by hand from the official mint page. Update it there and open a PR.
+The app shows how many of the 1,000 Founding Charters have been allocated, read off the official mint page rather than typed in by hand.
+
+There is no API for it. The protocol is pre launch, so there is no contract to query, and the mint page ships the count as a constant compiled into a hashed chunk. The site cannot fetch that chunk from the browser either, because standardreserve.xyz sends no CORS headers. So the read happens in CI:
+
+1. [`scripts/fetch-genesis.mjs`](scripts/fetch-genesis.mjs) walks the same path a browser does. It fetches the mint page, follows its scripts to the chunk that renders the counter, and resolves the `minted` and `total` props back to their minified constants.
+2. [`.github/workflows/genesis.yml`](.github/workflows/genesis.yml) runs it roughly every half hour and commits [`public/genesis.json`](public/genesis.json) only when the number moves, then redeploys.
+3. The page fetches that snapshot at runtime and labels it `LIVE`, falling back to the value compiled into [`src/config.ts`](src/config.ts) if it cannot be reached.
+
+Because every reading is a commit, the history of this number is auditable in the log rather than being a claim on a page.
+
+```bash
+node scripts/fetch-genesis.mjs --dry-run
+```
+
+The script anchors on the counter's own props instead of on a number pattern, which matters more than it sounds: at the time of writing the chunk declares `const ee=1e3,se=350,te=350` where `te` is an unrelated timeout that happens to equal the allocated count.
 
 ---
 

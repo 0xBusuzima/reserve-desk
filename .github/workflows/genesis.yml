@@ -1,0 +1,55 @@
+name: Track the genesis mint
+
+# Reads the allocated count off the official mint page and commits it when it
+# moves, then redeploys so the published page serves the new number.
+#
+# The redeploy has to be an explicit call: a push made with GITHUB_TOKEN does
+# not start a workflow run of its own, so committing alone would leave the site
+# on the previous snapshot until the next unrelated push.
+
+on:
+  schedule:
+    # Every 30 minutes. GitHub runs cron on a best effort basis, so read this
+    # as "roughly half hourly" rather than a guarantee.
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: genesis
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.fetch.outputs.changed }}
+      allocated: ${{ steps.fetch.outputs.allocated }}
+      total: ${{ steps.fetch.outputs.total }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - id: fetch
+        run: node scripts/fetch-genesis.mjs
+
+      - name: Commit when the count moved
+        if: steps.fetch.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/genesis.json
+          git commit -m "Genesis mint: ${{ steps.fetch.outputs.allocated }}/${{ steps.fetch.outputs.total }} allocated"
+          git push
+
+  publish:
+    needs: track
+    if: needs.track.outputs.changed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml

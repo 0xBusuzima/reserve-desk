@@ -10,7 +10,8 @@ import {
   simulate,
 } from './engine'
 import type { Params } from './engine'
-import { GENESIS_ALLOCATED, GENESIS_CHECKED, GENESIS_TOTAL, LINKS } from './config'
+import { LINKS } from './config'
+import { since, useGenesis } from './useGenesis'
 import { Chart } from './ui/Chart'
 import { ParamControls } from './ui/Controls'
 import { Desk, Stat } from './ui/Desk'
@@ -25,6 +26,7 @@ export default function App() {
   const [seed, setSeed] = useState(7)
   const [flash, setFlash] = useState<string | null>(null)
 
+  const genesis = useGenesis()
   const scenario = getScenario(scenarioId)
 
   const result = useMemo(() => {
@@ -189,27 +191,40 @@ export default function App() {
               <div className="grid g4" style={{ marginBottom: 16 }}>
                 <Stat
                   label="Allocated"
-                  value={int(GENESIS_ALLOCATED)}
-                  foot={`of ${int(GENESIS_TOTAL)} · checked ${GENESIS_CHECKED}`}
+                  value={int(genesis.allocated)}
+                  foot={`of ${int(genesis.total)} · read ${since(genesis.checkedAt)}`}
                   tone="ok"
                 />
-                <Stat label="Remaining" value={int(GENESIS_TOTAL - GENESIS_ALLOCATED)} foot="allowlist plus open mint" />
-                <Stat label="Progress" value={pct(GENESIS_ALLOCATED / GENESIS_TOTAL, 1)} foot="of the genesis cohort" />
+                <Stat
+                  label="Remaining"
+                  value={int(genesis.total - genesis.allocated)}
+                  foot="allowlist plus open mint"
+                />
+                <Stat
+                  label="Progress"
+                  value={pct(genesis.allocated / genesis.total, 1)}
+                  foot="of the genesis cohort"
+                />
                 <Stat
                   label="Your share if you hold one"
-                  value={pct(1 / GENESIS_TOTAL, 2)}
+                  value={pct(1 / genesis.total, 2)}
                   foot="of all charters, before auctions dilute the seat count"
                 />
               </div>
               <div className="genesis-bar">
                 <div
                   className="fill"
-                  style={{ width: `${(GENESIS_ALLOCATED / GENESIS_TOTAL) * 100}%` }}
+                  style={{ width: `${(genesis.allocated / genesis.total) * 100}%` }}
                 />
               </div>
               <div className="charter-grid">
                 {Array.from({ length: 200 }, (_, i) => (
-                  <i key={i} className={i < Math.round((GENESIS_ALLOCATED / GENESIS_TOTAL) * 200) ? 'taken' : ''} />
+                  <i
+                    key={i}
+                    className={
+                      i < Math.round((genesis.allocated / genesis.total) * 200) ? 'taken' : ''
+                    }
+                  />
                 ))}
               </div>
               <p className="foot-note" style={{ marginTop: 12 }}>
@@ -217,6 +232,18 @@ export default function App() {
                 costs nothing. After genesis, seats are sold at a daily ETH Dutch auction that
                 opens at 3× the previous day's close. A charter lives until its last branch is
                 retired, at which point the NFT burns. There are no revolving doors.
+              </p>
+              <p className="foot-note" style={{ marginTop: 8 }}>
+                <span className={`badge ${genesis.origin === 'live' ? 'whitepaper' : 'assumed'}`}>
+                  {genesis.origin === 'live' ? 'LIVE' : 'BUILT IN'}
+                </span>{' '}
+                The count is read off the{' '}
+                <a href={LINKS.mint} target="_blank" rel="noreferrer">
+                  official mint page
+                </a>{' '}
+                on a schedule and published as a snapshot with this site. The protocol is pre
+                launch, so there is no contract to query and no API to call. Every reading is
+                committed to the repository, which makes the history of this number auditable.
               </p>
             </div>
           </section>
