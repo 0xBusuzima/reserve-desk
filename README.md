@@ -116,15 +116,21 @@ node scripts/fetch-genesis.mjs --dry-run
 
 The script anchors on the counter's own props instead of on a number pattern, which matters more than it sounds: at the time of writing the chunk declares `const ee=1e3,se=350,te=350` where `te` is an unrelated timeout that happens to equal the allocated count.
 
-### Share card
+## Share cards
 
-[`scripts/make-card.mjs`](scripts/make-card.mjs) renders the mint progress as a 1600x900 image for posting. It reads the same `public/genesis.json`, so the card can never disagree with the site, and screenshots itself with whatever Chromium is already installed.
+[`scripts/make-card.mjs`](scripts/make-card.mjs) renders 1600x900 images for posting, screenshotting itself with whatever Chromium is already installed.
 
 ```bash
-node scripts/make-card.mjs
+node scripts/make-card.mjs                 # both
+node scripts/make-card.mjs --card genesis  # just one
 ```
 
-Output is [`share/genesis-card.png`](share/genesis-card.png) at 2x. Re-run it whenever the count moves.
+| Card | What it shows | Source of its numbers |
+| --- | --- | --- |
+| [`share/genesis-card.png`](share/genesis-card.png) | Founding Charters allocated, as a 200 square grid | `public/genesis.json` |
+| [`share/redaction-card.png`](share/redaction-card.png) | How many parameters the whitepaper states against how many it leaves blank | the `PROVENANCE` table in `src/engine/params.ts` |
+
+Neither card carries a hardcoded figure. The genesis card reads the same snapshot the site does, and the redaction card parses the provenance table out of the engine source, so a card cannot claim a count the code disagrees with. Re-run the script whenever either moves.
 
 ---
 
