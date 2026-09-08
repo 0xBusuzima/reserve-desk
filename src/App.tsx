@@ -53,8 +53,11 @@ export default function App() {
     if (lastSection.current === id && alreadyThere) return
     lastSection.current = id
 
+    // Smooth is nice over a screen or two and painfully slow over ten, so
+    // long jumps land instantly and the flash is what tells you where you are.
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })
+    const farAway = Math.abs(box.top) > window.innerHeight * 2.5
+    el.scrollIntoView({ behavior: reduced || farAway ? 'auto' : 'smooth', block: 'start' })
 
     setFlash(id)
     window.clearTimeout(flashTimer.current)
