@@ -10,9 +10,13 @@ Source: [standardreserve.xyz/whitepaper](https://www.standardreserve.xyz/whitepa
 
 The whitepaper is unusually complete on mechanism. Sections 2 through 13 specify the entities, the signal, the shape of the policy rule, the auction format, the shape of the exit fee, dormancy, the fee split, and the buyback throttle. Section 14 then presents a "Launch parameters" table in which **every value is blank**, followed by: *"Final parameters will be announced closer to launch."*
 
-That is a defensible disclosure choice, since publishing a rate before an audit finishes invites gaming, but it means the document is, as economics, unfalsifiable. The same mechanism is a reasonable ten year emission or a three month farm depending entirely on one redacted number.
+The reason is not a mystery. The author has said publicly that holding numbers back is deliberate, and that it is an anti fork measure: *"you can omit information in the whitepaper for this exact reason, good luck vibe coders"* ([@0xbeans, 25 August 2026](https://x.com/0xbeans/status/2092176563064484277)). Taken that way it is a sound decision, and this project is not an attempt to undo it.
 
-The design of Reserve Desk follows from that. It does not guess the parameters and present the result as truth. It makes the parameters the interface, tags every one with its provenance, and reports what follows.
+But it does mean the document is, as economics, unfalsifiable. The same mechanism is a reasonable ten year emission or a three month farm depending entirely on one unpublished number, and a charter holder cannot tell which without picking a value.
+
+The design of Reserve Desk follows from that. It does not guess at what the team will choose and present the result as truth. It makes the parameters the interface, tags every one with its provenance, and reports what follows from whatever you pick.
+
+Worth stating plainly, since the distinction matters: this is a simulator, not a reimplementation. It produces no contracts, deploys nothing, and cannot be used to launch anything. Where a number is unpublished, the app labels it as the operator's assumption rather than as a disclosed value.
 
 ---
 

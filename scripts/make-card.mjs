@@ -227,7 +227,7 @@ async function redactionCard() {
 
   return page({
     eyebrow: 'What is actually known · whitepaper §14',
-    footL: `${total} parameters this model needs · ${stated} stated, ${derived} derived, ${redacted.length} redacted`,
+    footL: `${total} parameters this model needs · ${stated} stated, ${derived} derived, ${redacted.length} still unpublished`,
     css: `
   .lede { margin-top:46px; max-width:1200px; }
   .lede h1 { font-size:41px; line-height:1.16; font-weight:600; letter-spacing:-.015em; }
@@ -256,16 +256,16 @@ async function redactionCard() {
   .payoff b { color:var(--gold); font-weight:600; }`,
     body: `
   <div class="lede">
-    <h1>The whitepaper specifies the whole mechanism,<br>then leaves <em>every launch number blank</em>.</h1>
+    <h1>The mechanism is fully specified. The launch numbers<br>are held back, so <em>the numbers are the part you set</em>.</h1>
   </div>
   <div class="counts">
     <div class="count on"><div class="n">${stated}</div><div class="l">stated outright</div></div>
-    <div class="count off"><div class="n">${redacted.length}</div><div class="l">redacted</div></div>
+    <div class="count off"><div class="n">${redacted.length}</div><div class="l">still unpublished</div></div>
     <div class="segs">${segs}</div>
   </div>
   <div class="chips">${chips}</div>
   <div class="quote">"Final parameters will be announced closer to launch."<span> whitepaper §14</span></div>
-  <div class="payoff">Every blank above is <b>a control you set</b>, and the model runs the economy day by day on the numbers you give it.</div>`,
+  <div class="payoff">None of these are <b>a guess at what the team will choose</b>. They are yours to set, and the model runs the economy day by day on whatever you pick.</div>`,
   })
 }
 
