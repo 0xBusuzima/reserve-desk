@@ -314,7 +314,96 @@ async function ogCard() {
   })
 }
 
-const CARDS = { genesis: genesisCard, redaction: redactionCard, og: ogCard }
+/**
+ * Finding 01: the signal steps on the sign of net flow, never on the size.
+ *
+ * The whole card is one comparison, so it is drawn as two paired bars per
+ * regime. Capital in on the left, issuance out on the right. The bars cross
+ * over, and that crossing is the finding.
+ */
+async function findingCard() {
+  const data = JSON.parse(await readFile(resolve(ROOT, 'share/findings.json'), 'utf8'))
+  const [chop, bleed] = data.regimes
+
+  const maxCapital = Math.max(...data.regimes.map((r) => r.capitalIn), 1)
+  const maxIssued = Math.max(...data.regimes.map((r) => r.issued), 1)
+
+  const row = (r) => {
+    const capW = Math.max(1.5, (r.capitalIn / maxCapital) * 100)
+    const issW = Math.max(1.5, (r.issued / maxIssued) * 100)
+    return `
+    <div class="row">
+      <div class="who">
+        <div class="name">${r.label}</div>
+        <div class="sub">avg multiplier ${r.meanM.toFixed(2)}x</div>
+      </div>
+      <div class="pair">
+        <div class="metric">
+          <div class="track"><span class="cap" style="width:${capW}%"></span></div>
+          <div class="val cap-t">${nf.format(r.capitalIn)} ETH in</div>
+        </div>
+        <div class="metric">
+          <div class="track"><span class="iss" style="width:${issW}%"></span></div>
+          <div class="val iss-t">${(r.issued / 1e6).toFixed(1)}M issued</div>
+        </div>
+      </div>
+    </div>`
+  }
+
+  const ratio = (bleed.issued / chop.issued).toFixed(2)
+
+  return page({
+    eyebrow: 'Finding 01 · whitepaper §4 and §5',
+    footL: `${data.seeds} seeds x ${data.days} days, on an unofficial model`,
+    css: `
+  .lede { margin-top:46px; max-width:1240px; }
+  .lede h1 { font-size:41px; line-height:1.16; font-weight:600; letter-spacing:-.015em; }
+  .lede h1 em { font-style:normal; color:var(--gold); }
+  .lede p { margin-top:16px; font-size:18px; color:var(--ink-2); max-width:1080px; }
+  .rows { margin-top:56px; display:flex; flex-direction:column; gap:32px; }
+  .row { display:flex; align-items:center; gap:34px; }
+  .who { width:230px; flex:none; }
+  .who .name { font-size:21px; font-weight:600; }
+  .who .sub { font-family:var(--mono); font-size:13px; color:var(--ink-3); margin-top:5px; }
+  .pair { flex:1; display:flex; flex-direction:column; gap:9px; }
+  .metric { display:flex; align-items:center; gap:16px; }
+  .track { flex:1; height:36px; background:#131619; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  .track span { display:block; height:100%; }
+  .cap { background:#3f7fd4; }
+  .iss { background:var(--gold); }
+  .val { width:180px; flex:none; font-family:var(--mono); font-size:16px; font-weight:600; }
+  .cap-t { color:#6ea2e8; }
+  .iss-t { color:var(--gold); }
+  .kicker { margin-top:52px; font-size:21px; color:var(--ink); }
+  .caveat { margin-top:18px; font-size:16.5px; color:var(--ink-2); max-width:1120px; }
+  .caveat b { color:var(--ink); font-weight:600; }
+  .kicker b { color:var(--gold); font-weight:600; }`,
+    body: `
+  <div class="lede">
+    <h1>The policy signal steps on the sign of net flow,<br><em>never on the size</em>.</h1>
+    <p>So a market can bring in more capital and be paid less for it. What the bank rewards is
+       consistency of direction, not weight of money.</p>
+  </div>
+  <div class="rows">${data.regimes.map(row).join('')}</div>
+  <div class="kicker">
+    ${nf.format(chop.capitalIn)} ETH in earns <b>${(chop.issued / 1e6).toFixed(1)}M</b>.
+    ${nf.format(bleed.capitalIn)} ETH in earns <b>${(bleed.issued / 1e6).toFixed(1)}M</b>, ${ratio}x more.
+  </div>
+  <div class="caveat">
+    <b>The equation that decides this is not published.</b> Section 5 gives the multiplier a range
+    and a direction, and draws it as fixed per epoch steps, but 5.2 itself is blank. If the real
+    rule scales with how much capital moved, this inversion disappears. That is the whole reason
+    it is worth asking about.
+  </div>`,
+  })
+}
+
+const CARDS = {
+  genesis: genesisCard,
+  redaction: redactionCard,
+  finding: findingCard,
+  og: ogCard,
+}
 
 /** Cards that ship with the site rather than living in share/. */
 const PUBLISHED = { og: resolve(ROOT, 'public/og.png') }

@@ -1,0 +1,21 @@
+{
+  "seeds": 40,
+  "days": 365,
+  "regimes": [
+    {
+      "id": "chop",
+      "label": "Chop",
+      "capitalIn": 1865,
+      "issued": 35717812.5,
+      "meanM": 0.3914280821917807
+    },
+    {
+      "id": "slow-bleed",
+      "label": "Slow bleed",
+      "capitalIn": 32,
+      "issued": 54515937.5,
+      "meanM": 0.5974349315068497
+    }
+  ],
+  "measuredAt": "2026-09-08T09:18:34.697Z"
+}
