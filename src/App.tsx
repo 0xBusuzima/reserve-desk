@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   DEFAULT_PARAMS,
   PARAM_META,
@@ -19,6 +19,28 @@ import { compact, eth, int, pct, price as fmtPrice, signed } from './ui/format'
 
 const HORIZONS = [90, 180, 365, 730, 1095]
 
+/**
+ * True when the layout has collapsed to a single column.
+ *
+ * At that width the sidebar sits above the content, so leaving nineteen
+ * sliders expanded would put three and a half screens of controls between a
+ * new reader and the first chart. On a phone the lab starts closed.
+ */
+function useIsNarrow(): boolean {
+  const query = '(max-width: 980px)'
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches,
+  )
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const sync = () => setNarrow(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  return narrow
+}
+
 export default function App() {
   const [params, setParams] = useState<Params>(DEFAULT_PARAMS)
   const [scenarioId, setScenarioId] = useState('chop')
@@ -27,6 +49,9 @@ export default function App() {
   const [flash, setFlash] = useState<string | null>(null)
 
   const genesis = useGenesis()
+  const narrow = useIsNarrow()
+  const [labOpen, setLabOpen] = useState(false)
+  const showParams = !narrow || labOpen
   const scenario = getScenario(scenarioId)
 
   const result = useMemo(() => {
@@ -47,24 +72,30 @@ export default function App() {
    */
   const lastSection = useRef<string | null>(null)
   const flashTimer = useRef<number | undefined>(undefined)
-  const focusSection = useCallback((id: string) => {
-    const el = document.getElementById(id)
-    if (!el) return
-    const box = el.getBoundingClientRect()
-    const alreadyThere = box.top > -40 && box.top < window.innerHeight * 0.45
-    if (lastSection.current === id && alreadyThere) return
-    lastSection.current = id
+  const focusSection = useCallback(
+    (id: string) => {
+      // In one column the control and the chart can never share the screen, so
+      // jumping away mid drag would take the slider out from under the thumb.
+      if (narrow) return
+      const el = document.getElementById(id)
+      if (!el) return
+      const box = el.getBoundingClientRect()
+      const alreadyThere = box.top > -40 && box.top < window.innerHeight * 0.45
+      if (lastSection.current === id && alreadyThere) return
+      lastSection.current = id
 
-    // Smooth is nice over a screen or two and painfully slow over ten, so
-    // long jumps land instantly and the flash is what tells you where you are.
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const farAway = Math.abs(box.top) > window.innerHeight * 2.5
-    el.scrollIntoView({ behavior: reduced || farAway ? 'auto' : 'smooth', block: 'start' })
+      // Smooth is nice over a screen or two and painfully slow over ten, so
+      // long jumps land instantly and the flash is what tells you where you are.
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const farAway = Math.abs(box.top) > window.innerHeight * 2.5
+      el.scrollIntoView({ behavior: reduced || farAway ? 'auto' : 'smooth', block: 'start' })
 
-    setFlash(id)
-    window.clearTimeout(flashTimer.current)
-    flashTimer.current = window.setTimeout(() => setFlash(null), 1100)
-  }, [])
+      setFlash(id)
+      window.clearTimeout(flashTimer.current)
+      flashTimer.current = window.setTimeout(() => setFlash(null), 1100)
+    },
+    [narrow],
+  )
 
   const cls = (id: string) => (flash === id ? 'flash' : undefined)
 
@@ -128,19 +159,42 @@ export default function App() {
           </div>
         </div>
 
-        <ParamControls params={params} onChange={patch} onFocusSection={focusSection} />
+        {narrow && (
+          <div className="side-block">
+            <button className="lab-toggle" onClick={() => setLabOpen((v) => !v)}>
+              {labOpen
+                ? 'Close the parameter lab'
+                : `Open the parameter lab (${PARAM_META.length} controls)`}
+            </button>
+            {!labOpen && (
+              <div className="ctl-help" style={{ marginTop: 10 }}>
+                Every number the whitepaper holds back is a control in here. Read on first if
+                you would rather see what the defaults do.
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="side-block" style={{ borderBottom: 0 }}>
-          <div className="side-title">Legend</div>
-          <div className="ctl-help">
-            <span className="badge whitepaper">WP</span> stated in the whitepaper ·{' '}
-            <span className="badge derived">DRV</span> follows from a stated rule ·{' '}
-            <span className="badge assumed">ASSUMED</span> redacted, so it is yours to set.
-          </div>
-          <div className="ctl-help" style={{ marginTop: 10 }}>
-            Move any control and the page jumps to the section it changes.
-          </div>
-        </div>
+        {showParams && (
+          <>
+            <ParamControls params={params} onChange={patch} onFocusSection={focusSection} />
+
+            <div className="side-block" style={{ borderBottom: 0 }}>
+              <div className="side-title">Legend</div>
+              <div className="ctl-help">
+                <span className="badge whitepaper">WP</span> stated in the whitepaper ·{' '}
+                <span className="badge derived">DRV</span> follows from a stated rule ·{' '}
+                <span className="badge assumed">ASSUMED</span> not published yet, so it is yours
+                to set.
+              </div>
+              {!narrow && (
+                <div className="ctl-help" style={{ marginTop: 10 }}>
+                  Move any control and the page jumps to the section it changes.
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </aside>
 
       <main className="main">
@@ -152,9 +206,9 @@ export default function App() {
               <a href={LINKS.site} target="_blank" rel="noreferrer">
                 The Standard Reserve
               </a>
-              . The whitepaper specifies a complete central bank and then leaves every launch
-              number blank. I rebuilt the bank from that spec so you can supply the numbers
-              yourself and watch what the economy does with them.
+              . The whitepaper specifies the mechanism in full and holds the launch numbers
+              back. I rebuilt the bank from that spec so the numbers become the part you set,
+              and you can watch what the economy does with whatever you pick.
             </p>
             <div className="mast-links">
               <a href={LINKS.whitepaper} target="_blank" rel="noreferrer">Whitepaper ↗</a>
@@ -551,8 +605,9 @@ export default function App() {
             </div>
             <p className="sec-note">
               The whitepaper publishes a launch parameter table with every value blank, closing
-              with "final parameters will be announced closer to launch". This is the honest
-              ledger of what that leaves you able to compute, and what you are guessing at.
+              with "final parameters will be announced closer to launch". That is deliberate and
+              it is their call. This is simply the honest ledger of what it leaves you able to
+              compute, and what you are supplying yourself.
             </p>
             <div className="card table-wrap">
               <table>

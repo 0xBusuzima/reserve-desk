@@ -128,7 +128,8 @@ node scripts/make-card.mjs --card genesis  # just one
 | Card | What it shows | Source of its numbers |
 | --- | --- | --- |
 | [`share/genesis-card.png`](share/genesis-card.png) | Founding Charters allocated, as a 200 square grid | `public/genesis.json` |
-| [`share/redaction-card.png`](share/redaction-card.png) | How many parameters the whitepaper states against how many it leaves blank | the `PROVENANCE` table in `src/engine/params.ts` |
+| [`share/redaction-card.png`](share/redaction-card.png) | How many parameters the whitepaper states against how many it holds back | the `PROVENANCE` table in `src/engine/params.ts` |
+| `public/og.png` | The link preview, deliberately sparser since it is read at thumbnail size | both of the above |
 
 Neither card carries a hardcoded figure. The genesis card reads the same snapshot the site does, and the redaction card parses the provenance table out of the engine source, so a card cannot claim a count the code disagrees with. Re-run the script whenever either moves.
 

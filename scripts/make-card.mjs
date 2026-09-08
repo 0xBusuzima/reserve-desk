@@ -28,6 +28,10 @@ const OUT_DIR = resolve(ROOT, 'share')
 
 const WIDTH = 1600
 const HEIGHT = 900
+/* The link preview is cropped to about 1.91:1 by X, so it gets its own size
+   and a much simpler layout: preview images are read at thumbnail scale. */
+const OG_WIDTH = 1200
+const OG_HEIGHT = 630
 /** Squares in the charter grid. Each one stands for five charters. */
 const COLS = 40
 const ROWS = 5
@@ -47,7 +51,7 @@ const nf = new Intl.NumberFormat('en-US')
 // Shared chrome
 // ---------------------------------------------------------------------------
 
-const BASE_CSS = `
+const baseCss = (w, h) => `
   :root {
     --bg:#08090a; --panel:#0e1012; --line:#23282d; --line-soft:#191d21;
     --ink:#e8eaed; --ink-2:#9aa3ac; --ink-3:#5f686f;
@@ -56,7 +60,7 @@ const BASE_CSS = `
     --sans:'Segoe UI',-apple-system,system-ui,sans-serif;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
-  html,body { width:${WIDTH}px; height:${HEIGHT}px; }
+  html,body { width:${w}px; height:${h}px; }
   body {
     background:var(--bg); color:var(--ink); font-family:var(--sans);
     padding:58px 64px 52px; display:flex; flex-direction:column;
@@ -83,9 +87,9 @@ const BASE_CSS = `
   footer .url { color:var(--gold); }
 `
 
-function page({ eyebrow, css, body, footL }) {
+function page({ eyebrow, css, body, footL, w = WIDTH, h = HEIGHT }) {
   return `<!doctype html>
-<html><head><meta charset="utf-8"><style>${BASE_CSS}${css}</style></head><body>
+<html><head><meta charset="utf-8"><style>${baseCss(w, h)}${css}</style></head><body>
   <header>
     <div class="brand"><div class="glyph">§</div><div class="word">RESERVE DESK</div></div>
     <div class="eyebrow">${eyebrow}</div>
@@ -271,11 +275,58 @@ async function redactionCard() {
 
 // ---------------------------------------------------------------------------
 
-const CARDS = { genesis: genesisCard, redaction: redactionCard }
+/**
+ * The link preview. Deliberately sparser than the timeline cards: this is read
+ * at a couple of hundred pixels wide in a feed, so it carries one sentence,
+ * two numbers and the address, and nothing else.
+ */
+async function ogCard() {
+  const { stated, redacted } = await readProvenance()
+  const { total, allocated } = JSON.parse(
+    await readFile(resolve(ROOT, 'public/genesis.json'), 'utf8'),
+  )
+
+  return page({
+    w: OG_WIDTH,
+    h: OG_HEIGHT,
+    eyebrow: 'The Standard Reserve',
+    footL: `${allocated}/${nf.format(total)} genesis charters allocated`,
+    css: `
+  body { padding:52px 58px 46px; }
+  .lede { margin-top:52px; max-width:1000px; }
+  .lede h1 { font-size:45px; line-height:1.14; font-weight:600; letter-spacing:-.02em; }
+  .lede h1 em { font-style:normal; color:var(--gold); }
+  .lede p { margin-top:18px; font-size:21px; color:var(--ink-2); }
+  .counts { margin-top:auto; display:flex; align-items:flex-end; gap:54px; padding-bottom:26px; }
+  .count .n { font-family:var(--mono); font-size:62px; line-height:.9; font-weight:700; }
+  .count .l { font-family:var(--mono); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); margin-top:11px; }
+  .count.on .n { color:var(--green); }
+  .count.off .n { color:var(--gold); }`,
+    body: `
+  <div class="lede">
+    <h1>A monetary policy simulator for<br><em>The Standard Reserve</em>.</h1>
+    <p>The launch numbers are held back. Set them yourself and run the bank day by day.</p>
+  </div>
+  <div class="counts">
+    <div class="count on"><div class="n">${stated}</div><div class="l">parameters stated</div></div>
+    <div class="count off"><div class="n">${redacted.length}</div><div class="l">still unpublished</div></div>
+  </div>`,
+  })
+}
+
+const CARDS = { genesis: genesisCard, redaction: redactionCard, og: ogCard }
+
+/** Cards that ship with the site rather than living in share/. */
+const PUBLISHED = { og: resolve(ROOT, 'public/og.png') }
 
 async function render(name, html) {
+  const isOg = name === 'og'
+  const w = isOg ? OG_WIDTH : WIDTH
+  const h = isOg ? OG_HEIGHT : HEIGHT
+  const scale = isOg ? 1.5 : 2
+
   const htmlPath = resolve(OUT_DIR, `${name}-card.html`)
-  const pngPath = resolve(OUT_DIR, `${name}-card.png`)
+  const pngPath = PUBLISHED[name] ?? resolve(OUT_DIR, `${name}-card.png`)
   await writeFile(htmlPath, html)
   console.log(`wrote ${htmlPath}`)
 
@@ -291,12 +342,12 @@ async function render(name, html) {
     '--headless=new',
     '--disable-gpu',
     '--hide-scrollbars',
-    '--force-device-scale-factor=2',
-    `--window-size=${WIDTH},${HEIGHT}`,
+    `--force-device-scale-factor=${scale}`,
+    `--window-size=${w},${h}`,
     `--screenshot=${pngPath}`,
     pathToFileURL(htmlPath).href,
   ])
-  console.log(`wrote ${pngPath}  (${WIDTH * 2}x${HEIGHT * 2})`)
+  console.log(`wrote ${pngPath}  (${w * scale}x${h * scale})`)
 }
 
 async function main() {
