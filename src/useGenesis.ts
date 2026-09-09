@@ -87,3 +87,52 @@ export function since(iso: string): string {
   if (days <= 31) return `${days} day${days === 1 ? '' : 's'} ago`
   return new Date(then).toISOString().slice(0, 10)
 }
+
+/**
+ * The published parameter sweep behind the charter finding.
+ *
+ * The full sweep is 2,430 simulations, far too slow to run in a page, so it is
+ * measured by scripts/measure-findings.mjs and shipped as a snapshot. The app
+ * still recomputes a small version live, which is what moves when you change
+ * the parameters, but the headline number here is the published one so the
+ * page and the share cards never quote different figures.
+ */
+export interface PublishedSweep {
+  runs: number
+  worst: number
+  median: number
+  everBeatenPct: number
+  medianBranches: number
+  parameterSets: number
+}
+
+export function usePublishedSweep(): PublishedSweep | null {
+  const [sweep, setSweep] = useState<PublishedSweep | null>(null)
+
+  useEffect(() => {
+    let live = true
+    fetch(`${import.meta.env.BASE_URL}findings.json`, { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d: any) => {
+        if (!live) return
+        const c = d?.charter
+        if (!c || typeof c.median !== 'number' || !Number.isFinite(c.median)) return
+        setSweep({
+          runs: c.runs,
+          worst: c.worst,
+          median: c.median,
+          everBeatenPct: c.everBeatenPct,
+          medianBranches: c.medianBranches,
+          parameterSets: d.charterGrid ?? 0,
+        })
+      })
+      .catch(() => {
+        // Fall back to the live sweep the page computes for itself.
+      })
+    return () => {
+      live = false
+    }
+  }, [])
+
+  return sweep
+}

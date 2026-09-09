@@ -13,7 +13,7 @@ import {
 } from './engine'
 import type { Params } from './engine'
 import { LINKS } from './config'
-import { since, useGenesis } from './useGenesis'
+import { since, useGenesis, usePublishedSweep } from './useGenesis'
 import { Chart } from './ui/Chart'
 import { ParamControls } from './ui/Controls'
 import { Desk, Stat } from './ui/Desk'
@@ -122,7 +122,16 @@ export default function App() {
 
   // Swept rather than assumed: the ratio survives the parameters being unknown,
   // which is the only reason it can be stated before launch.
-  const spread = useMemo(() => charterSpread(params), [params])
+  const liveSpread = useMemo(() => charterSpread(params), [params])
+  // Prefer the published 2,430 run sweep so the page and the cards agree; the
+  // live one takes over the moment you move a parameter away from the default.
+  const published = usePublishedSweep()
+  const touched = JSON.stringify(params) !== JSON.stringify(DEFAULT_PARAMS)
+  const spread = !touched && published ? published : liveSpread
+  const spreadSource =
+    !touched && published
+      ? `${int(published.runs)} runs across ${published.parameterSets} parameter sets`
+      : `${liveSpread.runs} runs at your current parameters`
 
   const budget = issuanceBudget(params)
   const burnedShare = last.burned / params.hardCap
@@ -449,7 +458,7 @@ export default function App() {
                 <Stat
                   label="Worst case seen"
                   value={`${spread.worst.toFixed(1)}x`}
-                  foot={`across ${spread.runs} runs of the sweep`}
+                  foot={spreadSource}
                 />
                 <Stat
                   label="Runs where expanding lost"
@@ -465,11 +474,11 @@ export default function App() {
                 />
               </div>
               <p className="foot-note" style={{ marginTop: 12 }}>
-                Swept over base issuance, the multiplier band, epoch length and the cut step,
-                against three flow regimes. The full sweep in
-                {' '}<code>scripts/experiment-charter.mjs</code> runs 2,430 simulations across 162
-                parameter sets and lands in the same place: median 7.0x, never once below 2.9x.
-                One caveat that matters: this assumes licenses are paid from the accrued balance.
+                Swept over base issuance, the multiplier band, epoch length and the cut step.
+                The figures above are the published sweep from
+                {' '}<code>scripts/measure-findings.mjs</code>; move any control and the page
+                recomputes a smaller version live so you can see the claim survive your own
+                numbers. One caveat that matters: this assumes licenses are paid from the accrued balance.
                 Under the other reading of section 2 an expander has to buy tokens on the market
                 first, which costs more than this model charges them.
               </p>

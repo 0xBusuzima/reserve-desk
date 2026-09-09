@@ -15,6 +15,8 @@ import { DEFAULT_PARAMS, charterSpread, compareRegimes } from '../src/engine'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = resolve(ROOT, 'share/findings.json')
+/** The site reads this one, so the page and the cards quote the same sweep. */
+const PUBLIC_OUT = resolve(ROOT, 'public/findings.json')
 
 const SEEDS = 40
 const DAYS = 365
@@ -56,8 +58,10 @@ const payload = {
   measuredAt: new Date().toISOString(),
 }
 
-mkdirSync(dirname(OUT), { recursive: true })
-writeFileSync(OUT, `${JSON.stringify(payload, null, 2)}\n`)
+for (const out of [OUT, PUBLIC_OUT]) {
+  mkdirSync(dirname(out), { recursive: true })
+  writeFileSync(out, `${JSON.stringify(payload, null, 2)}\n`)
+}
 
 for (const r of payload.regimes) {
   console.log(
