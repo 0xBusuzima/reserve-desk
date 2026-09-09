@@ -412,7 +412,7 @@ async function charterCard() {
 
   return page({
     eyebrow: 'Finding 02 · whitepaper §7',
-    footL: `${c.runs} runs sweeping the unpublished parameters · full sweep: 2,430 runs, median 7.0x`,
+    footL: `${nf.format(c.runs)} runs · ${data.charterGrid} parameter sets x 5 scenarios x 3 seeds · one year each`,
     css: `
   .lede { margin-top:50px; max-width:1240px; }
   .lede h1 { font-size:41px; line-height:1.16; font-weight:600; letter-spacing:-.015em; }

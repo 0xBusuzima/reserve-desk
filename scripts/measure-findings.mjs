@@ -21,6 +21,26 @@ const DAYS = 365
 
 const [chop, bleed] = compareRegimes(DEFAULT_PARAMS, ['chop', 'slow-bleed'], DAYS, SEEDS)
 
+/**
+ * The full parameter sweep, so the card quotes the same numbers the write up
+ * does. The engine ships a smaller grid for the browser; this is the one that
+ * belongs on an image people will screenshot.
+ */
+const FULL_GRID = []
+for (const baseIssuancePerDay of [100_000, 250_000, 600_000])
+  for (const mLaunch of [0.3, 0.5, 1.0])
+    for (const mMax of [1.5, 2.0, 3.0])
+      for (const epochDays of [1, 3])
+        for (const rateCut of [0.1, 0.15, 0.25])
+          FULL_GRID.push({
+            baseIssuancePerDay,
+            mLaunch,
+            mMax,
+            epochDays,
+            rateCut,
+            rateRaise: Math.min(0.05, rateCut / 2),
+          })
+
 const payload = {
   seeds: SEEDS,
   days: DAYS,
@@ -31,7 +51,8 @@ const payload = {
     issued: r.issued,
     meanM: r.meanM,
   })),
-  charter: charterSpread(DEFAULT_PARAMS),
+  charter: charterSpread(DEFAULT_PARAMS, FULL_GRID, ['melt-up', 'chop', 'slow-bleed', 'bank-run', 'dead-pool'], 365, 3),
+  charterGrid: FULL_GRID.length,
   measuredAt: new Date().toISOString(),
 }
 

@@ -115,6 +115,7 @@ export function charterSpread(
   grid: Partial<Params>[] = BROWSER_GRID,
   scenarioIds: string[] = ['melt-up', 'chop', 'slow-bleed'],
   days = 365,
+  seeds = 1,
 ): CharterSpread {
   const ratios: number[] = []
   const branchCounts: number[] = []
@@ -125,19 +126,21 @@ export function charterSpread(
   for (const patch of grid) {
     const params: Params = { ...base, ...patch }
     for (const id of scenarioIds) {
-      const flows = getScenario(id).generate(days, 1)
-      const r = simulate({ params, cohorts: makeCohorts(params.foundingCharters), flows })
+      for (let seed = 1; seed <= seeds; seed++) {
+        const flows = getScenario(id).generate(days, seed)
+        const r = simulate({ params, cohorts: makeCohorts(params.foundingCharters), flows })
 
-      const compound = r.cohorts.find((c) => c.id === 'compound')
-      const hold = r.cohorts.find((c) => c.id === 'hold')
-      if (!compound || !hold) continue
+        const compound = r.cohorts.find((c) => c.id === 'compound')
+        const hold = r.cohorts.find((c) => c.id === 'hold')
+        if (!compound || !hold) continue
 
-      const perCompounder = compound.netTokens / startCompound
-      const perHolder = hold.netTokens / startHold
-      if (perHolder <= 0) continue
+        const perCompounder = compound.netTokens / startCompound
+        const perHolder = hold.netTokens / startHold
+        if (perHolder <= 0) continue
 
-      ratios.push(perCompounder / perHolder)
-      branchCounts.push(r.days[r.days.length - 1].branches)
+        ratios.push(perCompounder / perHolder)
+        branchCounts.push(r.days[r.days.length - 1].branches)
+      }
     }
   }
 
