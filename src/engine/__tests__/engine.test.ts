@@ -17,6 +17,7 @@ import {
   runScenario,
   simulate,
   compareRegimes,
+  charterSpread,
 } from '..'
 import { addPol, buy, makePool, sell, spot } from '../pool'
 import type { Params } from '../types'
@@ -407,5 +408,32 @@ describe('the policy signal reads sign, not size', () => {
     const gapAsymmetric = bleedA.meanM - chopA.meanM
     const gapSymmetric = bleedB.meanM - chopB.meanM
     expect(gapSymmetric).toBeLessThan(gapAsymmetric)
+  })
+})
+
+describe('what a Founding Charter is worth', () => {
+  it('finds expanding beats holding across every parameter set it sweeps', () => {
+    const s = charterSpread(P)
+    expect(s.runs).toBeGreaterThan(10)
+    expect(s.everBeatenPct).toBe(100)
+    expect(s.worst).toBeGreaterThan(1)
+  })
+
+  it('is bounded by the ten branch cap, not by the base rate', () => {
+    // The spread is a ratio of shares, so scaling issuance by six should move
+    // it very little. That is the whole reason the number is publishable while
+    // the launch parameters are not.
+    const slow = charterSpread({ ...P, baseIssuancePerDay: 100_000 })
+    const fast = charterSpread({ ...P, baseIssuancePerDay: 600_000 })
+    expect(Math.abs(slow.median - fast.median)).toBeLessThan(2)
+    expect(slow.median).toBeLessThan(P.maxBranchesPerCharter)
+    expect(fast.median).toBeLessThan(P.maxBranchesPerCharter)
+  })
+
+  it('dilutes a charter that never expands', () => {
+    const s = charterSpread(P)
+    // Branches grow well past the 1,000 the genesis cohort starts with, so a
+    // single branch charter holds a steadily smaller slice of each epoch.
+    expect(s.medianBranches).toBeGreaterThan(P.foundingCharters * 2)
   })
 })

@@ -11,7 +11,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { DEFAULT_PARAMS, compareRegimes } from '../src/engine'
+import { DEFAULT_PARAMS, charterSpread, compareRegimes } from '../src/engine'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = resolve(ROOT, 'share/findings.json')
@@ -31,6 +31,7 @@ const payload = {
     issued: r.issued,
     meanM: r.meanM,
   })),
+  charter: charterSpread(DEFAULT_PARAMS),
   measuredAt: new Date().toISOString(),
 }
 

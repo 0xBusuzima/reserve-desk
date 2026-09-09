@@ -4,6 +4,7 @@ import {
   PARAM_META,
   PROVENANCE,
   SCENARIOS,
+  charterSpread,
   compareRegimes,
   getScenario,
   issuanceBudget,
@@ -118,6 +119,10 @@ export default function App() {
   // claim moves when you move the parameters that produce it.
   const regimes = useMemo(() => compareRegimes(params, ['chop', 'slow-bleed'], 365, 10), [params])
   const [chopRun, bleedRun] = regimes
+
+  // Swept rather than assumed: the ratio survives the parameters being unknown,
+  // which is the only reason it can be stated before launch.
+  const spread = useMemo(() => charterSpread(params), [params])
 
   const budget = issuanceBudget(params)
   const burnedShare = last.burned / params.hardCap
@@ -368,7 +373,7 @@ export default function App() {
           <section id="findings" className={cls('findings')}>
             <div className="sec-head">
               <h2>What running it turned up</h2>
-              <span className="ref">four things I did not expect from reading alone</span>
+              <span className="ref">five things I did not expect from reading alone</span>
             </div>
             <p className="sec-note">
               These are the reason the tool exists rather than a thread. Each one is either
@@ -424,6 +429,55 @@ export default function App() {
             <div className="card finding">
               <div className="finding-head">
                 <span className="badge assumed">02</span>
+                <h3>A charter is not the asset. The branches are.</h3>
+              </div>
+              <p>
+                Everyone chasing a Founding Charter is chasing the licence, but issuance is split
+                across branches, not charters. One charter can hold ten. So the question that
+                actually decides your year is not whether you get a seat, it is whether you
+                expand it, and the answer barely depends on the numbers nobody has published
+                yet. A share is a ratio, and the ten branch cap bounds it whatever the base rate
+                turns out to be.
+              </p>
+              <div className="grid g4" style={{ marginTop: 14 }}>
+                <Stat
+                  label="Expanding vs holding"
+                  value={`${spread.median.toFixed(1)}x`}
+                  foot="median tokens per charter after a year"
+                  tone="ok"
+                />
+                <Stat
+                  label="Worst case seen"
+                  value={`${spread.worst.toFixed(1)}x`}
+                  foot={`across ${spread.runs} runs of the sweep`}
+                />
+                <Stat
+                  label="Runs where expanding lost"
+                  value={`${(100 - spread.everBeatenPct).toFixed(0)}%`}
+                  foot="it did not lose in any of them"
+                  tone="acc"
+                />
+                <Stat
+                  label="Branches after a year"
+                  value={int(spread.medianBranches)}
+                  foot={`from ${int(params.foundingCharters)} at genesis, so a single branch is diluted`}
+                  tone="warn"
+                />
+              </div>
+              <p className="foot-note" style={{ marginTop: 12 }}>
+                Swept over base issuance, the multiplier band, epoch length and the cut step,
+                against three flow regimes. The full sweep in
+                {' '}<code>scripts/experiment-charter.mjs</code> runs 2,430 simulations across 162
+                parameter sets and lands in the same place: median 7.0x, never once below 2.9x.
+                One caveat that matters: this assumes licenses are paid from the accrued balance.
+                Under the other reading of section 2 an expander has to buy tokens on the market
+                first, which costs more than this model charges them.
+              </p>
+            </div>
+
+            <div className="card finding">
+              <div className="finding-head">
+                <span className="badge assumed">03</span>
                 <h3>Section 10 adds up to 102%</h3>
               </div>
               <p>
@@ -437,7 +491,7 @@ export default function App() {
 
             <div className="card finding">
               <div className="finding-head">
-                <span className="badge assumed">03</span>
+                <span className="badge assumed">04</span>
                 <h3>What expansion licenses are paid with is unresolved, and it decides a flywheel</h3>
               </div>
               <p>
@@ -452,7 +506,7 @@ export default function App() {
 
             <div className="card finding">
               <div className="finding-head">
-                <span className="badge assumed">04</span>
+                <span className="badge assumed">05</span>
                 <h3>On day one there is nothing to sell</h3>
               </div>
               <p>

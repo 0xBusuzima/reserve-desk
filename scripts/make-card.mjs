@@ -398,10 +398,93 @@ async function findingCard() {
   })
 }
 
+/**
+ * The charter card: what a Founding Charter is actually worth.
+ *
+ * Drawn as one branch against ten, because the whole point is that issuance
+ * is split across branches and a charter is only the licence to open them.
+ */
+async function charterCard() {
+  const data = JSON.parse(await readFile(resolve(ROOT, 'share/findings.json'), 'utf8'))
+  const c = data.charter
+  const cells = (n, on) =>
+    Array.from({ length: 10 }, (_, i) => `<i class="${i < n ? on : 'off'}"></i>`).join('')
+
+  return page({
+    eyebrow: 'Finding 02 · whitepaper §7',
+    footL: `${c.runs} runs sweeping the unpublished parameters · full sweep: 2,430 runs, median 7.0x`,
+    css: `
+  .lede { margin-top:50px; max-width:1240px; }
+  .lede h1 { font-size:41px; line-height:1.16; font-weight:600; letter-spacing:-.015em; }
+  .lede h1 em { font-style:normal; color:var(--gold); }
+  .lede p { margin-top:16px; font-size:18px; color:var(--ink-2); max-width:1100px; }
+  .compare { margin-top:62px; display:flex; align-items:center; gap:60px; }
+  .side { flex:1; }
+  .side .cap { font-family:var(--mono); font-size:13px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-3); }
+  .cells { margin-top:16px; display:flex; gap:10px; }
+  .cells i { flex:1; height:70px; border-radius:4px; }
+  .cells i.on { background:var(--gold); border:1px solid var(--gold); }
+  .cells i.dim { background:#2a2f35; border:1px solid #363c43; }
+  .cells i.off { background:#141719; border:1px solid #24282d; }
+  .side .val { margin-top:16px; font-family:var(--mono); font-size:30px; font-weight:700; }
+  .side .sub { margin-top:6px; font-size:15px; color:var(--ink-2); }
+  .verdict { margin-top:62px; display:flex; align-items:flex-end; gap:54px; }
+  .big { font-family:var(--mono); font-size:74px; line-height:.9; font-weight:700; color:var(--gold); }
+  .big-l { font-family:var(--mono); font-size:13px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-3); margin-top:11px; }
+  .note { flex:1; font-size:17px; color:var(--ink-2); padding-bottom:6px; }
+  .note b { color:var(--ink); font-weight:600; }
+  .caveat { margin-top:26px; font-size:16px; color:var(--ink-3); max-width:1400px; }`,
+    body: `
+  <div class="lede">
+    <h1>A charter is not the asset. <em>The branches are.</em></h1>
+    <p>Issuance is split across branches, not charters, and one charter can hold ten. Whether you
+       expand decides your year far more than whether you got a seat.</p>
+  </div>
+
+  <div class="compare">
+    <div class="side">
+      <div class="cap">Sit on the free charter</div>
+      <div class="cells">${cells(1, 'dim')}</div>
+      <div class="val">1 branch</div>
+      <div class="sub">a shrinking slice as the system grows to ${nf.format(c.medianBranches)} branches</div>
+    </div>
+    <div class="side">
+      <div class="cap">Expand it to the cap</div>
+      <div class="cells">${cells(10, 'on')}</div>
+      <div class="val">10 branches</div>
+      <div class="sub">every licence paid in $STANDARD and burned</div>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <div>
+      <div class="big">${c.median.toFixed(1)}x</div>
+      <div class="big-l">median, expanding vs holding</div>
+    </div>
+    <div>
+      <div class="big">${c.worst.toFixed(1)}x</div>
+      <div class="big-l">worst case in the sweep</div>
+    </div>
+    <div class="note">
+      Tokens per charter after one year, net of what the licences cost.
+      <b>Expanding did not lose a single run</b>, at any base rate, multiplier band, epoch
+      length or cut step I tried. The ratio holds because it is a share, and the ten branch
+      cap bounds it whatever the launch numbers turn out to be.
+    </div>
+  </div>
+  <div class="caveat">
+    One caveat that matters: this assumes licences are paid out of the balance already accrued
+    at the bank. Section 2 can also be read as requiring tokens in a wallet, which would make an
+    expander buy on the open market first and cost more than this charges them.
+  </div>`,
+  })
+}
+
 const CARDS = {
   genesis: genesisCard,
   redaction: redactionCard,
   finding: findingCard,
+  charter: charterCard,
   og: ogCard,
 }
 
