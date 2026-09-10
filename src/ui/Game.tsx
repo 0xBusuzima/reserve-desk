@@ -14,6 +14,9 @@ import { compact, eth, pct } from './format'
 export function Game() {
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 100000))
   const [state, setState] = useState<GameState>(() => newGame(seed))
+  // Dropping a reader straight into epoch one reads as another readout panel,
+  // not as something to press. The rules screen is what makes it a game.
+  const [started, setStarted] = useState(false)
 
   const v = useMemo(() => view(state), [state])
   const play = (move: Move) => setState((s) => step(s, move))
@@ -21,11 +24,58 @@ export function Game() {
     const next = Math.floor(Math.random() * 100000)
     setSeed(next)
     setState(newGame(next))
+    setStarted(true)
   }
 
   const canExpand = v.yourBranches < state.params.maxBranchesPerCharter && v.yourBalance >= v.licensePrice
   const wouldRelease = v.yourBranches > 0 ? v.yourBalance / v.yourBranches : 0
   const wouldKeep = wouldRelease * (1 - v.exitFee)
+
+  if (!started) {
+    return (
+      <div className="card game game-start">
+        <div className="start-eyebrow">A PLAYABLE MODEL OF THE WHITEPAPER</div>
+        <h3 className="start-title">Run a bank for a year</h3>
+        <p className="start-sub">
+          You hold one Founding Charter with a single branch. Twelve monthly epochs, one
+          decision each. Capital flows in and out of the pool and the bank changes its rate
+          because of it, exactly as sections 4 and 5 describe.
+        </p>
+
+        <div className="start-rules">
+          <div className="rule">
+            <span className="n">1</span>
+            <div>
+              <strong>Open a branch</strong>
+              <span>Costs $STANDARD from your balance, burned. More branches, bigger share of every epoch.</span>
+            </div>
+          </div>
+          <div className="rule">
+            <span className="n">2</span>
+            <div>
+              <strong>Hold</strong>
+              <span>Spend nothing and keep accruing. The system keeps growing around you either way.</span>
+            </div>
+          </div>
+          <div className="rule">
+            <span className="n">3</span>
+            <div>
+              <strong>Retire a branch</strong>
+              <span>Cash out its share, pay the resolution fee, and lose the branch that was earning it.</span>
+            </div>
+          </div>
+        </div>
+
+        <button className="start-btn" onClick={() => setStarted(true)}>
+          Start the year
+        </button>
+        <p className="foot-note" style={{ marginTop: 12 }}>
+          Takes about a minute. Scored on what reaches your wallet, against never expanding and
+          always expanding on the same year.
+        </p>
+      </div>
+    )
+  }
 
   if (state.done && state.result) {
     const r = state.result
@@ -145,6 +195,13 @@ export function Game() {
         </div>
       </div>
 
+      <div className="game-progress">
+        {Array.from({ length: EPOCHS }, (_, i) => (
+          <i key={i} className={i < v.epoch ? 'done' : i === v.epoch ? 'now' : ''} />
+        ))}
+      </div>
+
+      <div className="move-prompt">Your move</div>
       <div className="game-moves">
         <button className="move expand" disabled={!canExpand} onClick={() => play({ kind: 'expand' })}>
           <span className="t">Open a branch</span>
