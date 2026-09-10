@@ -480,7 +480,61 @@ async function charterCard() {
   })
 }
 
+/**
+ * The game card. Four ways to run a bank, ranked, because the ranking is the
+ * lesson: the instincts that feel prudent are the ones the mechanism taxes.
+ */
+async function gameCard() {
+  const d = JSON.parse(await readFile(resolve(ROOT, 'share/game.json'), 'utf8'))
+  const rows = d.lines
+    .map((l, i) => {
+      const w = Math.max(2, (l.value / d.best) * 100)
+      return `
+      <div class="row ${i === 0 ? 'top' : ''}">
+        <div class="rank">${i + 1}</div>
+        <div class="what">${l.label}</div>
+        <div class="track"><span style="width:${w}%"></span></div>
+        <div class="num">${nf.format(Math.round(l.value))}</div>
+      </div>`
+    })
+    .join('')
+
+  return page({
+    eyebrow: 'Twelve Epochs · playable at /#play',
+    footL: `Average over ${d.seeds} runs of a year · tokens that reached the wallet`,
+    css: `
+  .lede { margin-top:46px; max-width:1250px; }
+  .lede h1 { font-size:41px; line-height:1.16; font-weight:600; letter-spacing:-.015em; }
+  .lede h1 em { font-style:normal; color:var(--gold); }
+  .lede p { margin-top:16px; font-size:18px; color:var(--ink-2); max-width:1120px; }
+  .rows { margin-top:64px; display:flex; flex-direction:column; gap:30px; }
+  .row { display:flex; align-items:center; gap:24px; }
+  .rank { width:34px; flex:none; font-family:var(--mono); font-size:19px; color:var(--ink-3); }
+  .what { width:390px; flex:none; font-size:19px; color:var(--ink-2); }
+  .row.top .what { color:var(--ink); font-weight:600; }
+  .track { flex:1; height:42px; background:#131619; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  .track span { display:block; height:100%; background:#2f3841; }
+  .row.top .track span { background:var(--gold); }
+  .num { width:150px; flex:none; text-align:right; font-family:var(--mono); font-size:20px; font-weight:700; color:var(--ink-2); }
+  .row.top .num { color:var(--gold); }
+  .kicker { margin-top:58px; font-size:19px; color:var(--ink); max-width:1340px; }
+  .kicker b { color:var(--gold); font-weight:600; }`,
+    body: `
+  <div class="lede">
+    <h1>You can play the whitepaper now. <em>Twelve epochs, three moves.</em></h1>
+    <p>One Founding Charter, one branch, a year of net ETH flow you have to read. Expand, hold,
+       or retire a branch each turn, and the bank settles what is left at the bell.</p>
+  </div>
+  <div class="rows">${rows}</div>
+  <div class="kicker">
+    Every instinct that feels prudent is the one it taxes. <b>Taking profit from epoch seven
+    costs you more than the fee</b>, because retiring a branch burns the thing that was earning.
+  </div>`,
+  })
+}
+
 const CARDS = {
+  game: gameCard,
   genesis: genesisCard,
   redaction: redactionCard,
   finding: findingCard,

@@ -1,0 +1,27 @@
+{
+  "epochs": 12,
+  "seeds": 6,
+  "lines": [
+    {
+      "label": "Expand early, hold to the bell",
+      "key": "expand",
+      "value": 173806.87647149464
+    },
+    {
+      "label": "Take profit from epoch 7",
+      "key": "cashEarly",
+      "value": 102119.40137257462
+    },
+    {
+      "label": "Never expand",
+      "key": "hold",
+      "value": 33438.0191530169
+    },
+    {
+      "label": "Panic out when flow turns",
+      "key": "panic",
+      "value": 18816.424705522124
+    }
+  ],
+  "best": 173806.87647149464
+}

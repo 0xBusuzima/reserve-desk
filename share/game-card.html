@@ -1,0 +1,97 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  :root {
+    --bg:#08090a; --panel:#0e1012; --line:#23282d; --line-soft:#191d21;
+    --ink:#e8eaed; --ink-2:#9aa3ac; --ink-3:#5f686f;
+    --gold:#d9a441; --gold-dim:#6b5322; --green:#4fb286;
+    --mono:'Consolas','SF Mono','JetBrains Mono',ui-monospace,monospace;
+    --sans:'Segoe UI',-apple-system,system-ui,sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { width:1600px; height:900px; }
+  body {
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    padding:58px 64px 52px; display:flex; flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+  }
+  header { display:flex; align-items:center; justify-content:space-between; }
+  .brand { display:flex; align-items:center; gap:14px; }
+  .glyph {
+    width:38px; height:38px; border:1.5px solid var(--gold); border-radius:3px;
+    display:grid; place-items:center; color:var(--gold);
+    font-family:var(--mono); font-size:21px; font-weight:700;
+  }
+  .word { font-size:19px; letter-spacing:.22em; font-weight:600; }
+  .eyebrow {
+    font-family:var(--mono); font-size:14px; letter-spacing:.16em;
+    color:var(--ink-3); text-transform:uppercase;
+  }
+  hr { border:0; border-top:1px solid var(--line); margin:30px 0 0; }
+  footer {
+    margin-top:auto; padding-top:30px; border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:var(--mono); font-size:14.5px; color:var(--ink-3);
+  }
+  footer .url { color:var(--gold); }
+
+  .lede { margin-top:46px; max-width:1250px; }
+  .lede h1 { font-size:41px; line-height:1.16; font-weight:600; letter-spacing:-.015em; }
+  .lede h1 em { font-style:normal; color:var(--gold); }
+  .lede p { margin-top:16px; font-size:18px; color:var(--ink-2); max-width:1120px; }
+  .rows { margin-top:64px; display:flex; flex-direction:column; gap:30px; }
+  .row { display:flex; align-items:center; gap:24px; }
+  .rank { width:34px; flex:none; font-family:var(--mono); font-size:19px; color:var(--ink-3); }
+  .what { width:390px; flex:none; font-size:19px; color:var(--ink-2); }
+  .row.top .what { color:var(--ink); font-weight:600; }
+  .track { flex:1; height:42px; background:#131619; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  .track span { display:block; height:100%; background:#2f3841; }
+  .row.top .track span { background:var(--gold); }
+  .num { width:150px; flex:none; text-align:right; font-family:var(--mono); font-size:20px; font-weight:700; color:var(--ink-2); }
+  .row.top .num { color:var(--gold); }
+  .kicker { margin-top:58px; font-size:19px; color:var(--ink); max-width:1340px; }
+  .kicker b { color:var(--gold); font-weight:600; }</style></head><body>
+  <header>
+    <div class="brand"><div class="glyph">§</div><div class="word">RESERVE DESK</div></div>
+    <div class="eyebrow">Twelve Epochs · playable at /#play</div>
+  </header>
+  <hr>
+
+  <div class="lede">
+    <h1>You can play the whitepaper now. <em>Twelve epochs, three moves.</em></h1>
+    <p>One Founding Charter, one branch, a year of net ETH flow you have to read. Expand, hold,
+       or retire a branch each turn, and the bank settles what is left at the bell.</p>
+  </div>
+  <div class="rows">
+      <div class="row top">
+        <div class="rank">1</div>
+        <div class="what">Expand early, hold to the bell</div>
+        <div class="track"><span style="width:100%"></span></div>
+        <div class="num">173,807</div>
+      </div>
+      <div class="row ">
+        <div class="rank">2</div>
+        <div class="what">Take profit from epoch 7</div>
+        <div class="track"><span style="width:58.754523092371905%"></span></div>
+        <div class="num">102,119</div>
+      </div>
+      <div class="row ">
+        <div class="rank">3</div>
+        <div class="what">Never expand</div>
+        <div class="track"><span style="width:19.238605417606095%"></span></div>
+        <div class="num">33,438</div>
+      </div>
+      <div class="row ">
+        <div class="rank">4</div>
+        <div class="what">Panic out when flow turns</div>
+        <div class="track"><span style="width:10.82605308116686%"></span></div>
+        <div class="num">18,816</div>
+      </div></div>
+  <div class="kicker">
+    Every instinct that feels prudent is the one it taxes. <b>Taking profit from epoch seven
+    costs you more than the fee</b>, because retiring a branch burns the thing that was earning.
+  </div>
+  <footer>
+    <div>Average over 6 runs of a year · tokens that reached the wallet</div>
+    <div class="url">0xbusuzima.github.io/reserve-desk</div>
+  </footer>
+</body></html>
