@@ -17,6 +17,7 @@ import { since, useGenesis, usePublishedSweep } from './useGenesis'
 import { Chart } from './ui/Chart'
 import { ParamControls } from './ui/Controls'
 import { Desk, Stat } from './ui/Desk'
+import { Game } from './ui/Game'
 import { compact, eth, int, pct, price as fmtPrice, signed } from './ui/format'
 
 const HORIZONS = [90, 180, 365, 730, 1095]
@@ -237,6 +238,7 @@ export default function App() {
               <a href={LINKS.repo} target="_blank" rel="noreferrer">Source ↗</a>
             </div>
             <nav className="toc">
+              <a href="#play">Play</a>
               <a href="#genesis">Genesis</a>
               <a href="#verdict">Verdict</a>
               <a href="#findings">Findings</a>
@@ -255,6 +257,20 @@ export default function App() {
             contracts. Every number marked <span className="badge assumed">ASSUMED</span> is a
             placeholder I chose, not a disclosed parameter. Nothing here is investment advice.
           </div>
+
+          {/* Play */}
+          <section id="play" className={cls('play')}>
+            <div className="sec-head">
+              <h2>Run a bank for a year</h2>
+              <span className="ref">twelve epochs, three moves, no reading required</span>
+            </div>
+            <p className="sec-note">
+              Everything below this measures the economy from outside. This is the part that
+              puts you inside it. You hold one Founding Charter with one branch. Expand it,
+              sit on it, or cash out, and find out which the mechanism rewards.
+            </p>
+            <Game />
+          </section>
 
           {/* Genesis */}
           <section id="genesis" className={cls('genesis')}>

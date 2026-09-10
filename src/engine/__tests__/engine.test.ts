@@ -18,7 +18,12 @@ import {
   simulate,
   compareRegimes,
   charterSpread,
+  EPOCHS,
+  newGame,
+  step,
+  view,
 } from '..'
+import type { Move } from '..'
 import { addPol, buy, makePool, sell, spot } from '../pool'
 import type { Params } from '../types'
 
@@ -435,5 +440,61 @@ describe('what a Founding Charter is worth', () => {
     // Branches grow well past the 1,000 the genesis cohort starts with, so a
     // single branch charter holds a steadily smaller slice of each epoch.
     expect(s.medianBranches).toBeGreaterThan(P.foundingCharters * 2)
+  })
+})
+
+describe('Twelve Epochs', () => {
+  const playAll = (seed: number, rule: (v: ReturnType<typeof view>) => Move) => {
+    let s = newGame(seed)
+    while (!s.done) s = step(s, rule(view(s)))
+    return s
+  }
+  const expandRule = (v: ReturnType<typeof view>): Move =>
+    v.yourBranches < P.maxBranchesPerCharter && v.yourBalance > v.licensePrice
+      ? { kind: 'expand' }
+      : { kind: 'hold' }
+
+  it('gives the opening turn a real decision', () => {
+    const v = view(newGame(7))
+    expect(v.yourBalance).toBeGreaterThan(v.licensePrice)
+    expect(v.epoch).toBe(0)
+  })
+
+  it('always runs exactly twelve epochs', () => {
+    const s = playAll(7, () => ({ kind: 'hold' }))
+    expect(s.epoch).toBe(EPOCHS)
+    expect(s.history).toHaveLength(EPOCHS)
+  })
+
+  it('settles the balance at the bell, so the score is what reached the wallet', () => {
+    const s = playAll(7, () => ({ kind: 'hold' }))
+    expect(s.yourBalance).toBe(0)
+    expect(s.yourWallet).toBeGreaterThan(0)
+    expect(s.result?.finalTokens).toBeCloseTo(s.yourWallet, 6)
+  })
+
+  it('pays expanding far better than sitting still, as the sweep says it should', () => {
+    for (const seed of [7, 42, 99]) {
+      const held = playAll(seed, () => ({ kind: 'hold' })).result!.finalTokens
+      const grown = playAll(seed, expandRule).result!.finalTokens
+      expect(grown).toBeGreaterThan(held * 3)
+    }
+  })
+
+  it('never lets a charter hold more branches than the cap', () => {
+    const s = playAll(7, expandRule)
+    expect(Math.max(...s.history.map((h) => h.yourBranches))).toBeLessThanOrEqual(
+      P.maxBranchesPerCharter,
+    )
+  })
+
+  it('is deterministic for a seed', () => {
+    expect(playAll(7, expandRule).result).toEqual(playAll(7, expandRule).result)
+  })
+
+  it('charges more to leave while the crowd is leaving', () => {
+    const s = playAll(7, () => ({ kind: 'hold' }))
+    const fees = s.history.map((h) => h.exitFee)
+    expect(Math.max(...fees)).toBeGreaterThan(Math.min(...fees) * 2)
   })
 })

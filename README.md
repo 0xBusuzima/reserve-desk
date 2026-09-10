@@ -30,6 +30,8 @@ Reserve Desk answers all four. I implemented whitepaper v0.1 as an executable mo
 - *What does it cost me to leave?* The quadratic resolution fee at your exit pressure, plus a run table showing what stayers collect.
 - *How hard can the bank defend?* Whether the buyback throttle is vault bound or depth bound.
 
+**Twelve Epochs.** A playable version of the model at [`#play`](https://0xbusuzima.github.io/reserve-desk/#play). You hold one Founding Charter with one branch and run it for twelve monthly epochs, choosing each turn to expand, hold, or retire a branch. The licence price is the section 7 Dutch curve, the multiplier is the section 5 step, the exit fee is the section 9 quadratic, so the lessons it teaches are the mechanism's own. At the bell it settles whatever is still at the bank and scores you against never expanding and always expanding.
+
 **Invariant checking.** The engine asserts the whitepaper's accounting on every simulated day: the supply identity, the monotonic max supply ratchet, the 900M issuance budget, the branch cap, and the policy band. If a parameter set breaks the accounting, the console says so instead of quietly producing a pretty chart.
 
 ---
