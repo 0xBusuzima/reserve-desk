@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { EPOCHS, newGame, step, view } from '../engine'
-import type { GameState, Move } from '../engine'
+import type { EpochView, GameState, Move } from '../engine'
 import { compact, eth, pct } from './format'
 
 /**
@@ -89,23 +89,7 @@ export function Game() {
         <div className={`game-grade ${r.grade}`}>{gradeLabel(r.grade)}</div>
         <p className="game-verdict">{r.verdict}</p>
 
-        <div className="grid g3" style={{ marginTop: 18 }}>
-          <div className="game-stat">
-            <div className="k">You finished with</div>
-            <div className="v acc">{compact(r.finalTokens, 1)}</div>
-            <div className="f">$STANDARD, wallet plus bank</div>
-          </div>
-          <div className="game-stat">
-            <div className="k">If you had only held</div>
-            <div className="v">{compact(r.ifHeld, 1)}</div>
-            <div className="f">never expanded, never exited</div>
-          </div>
-          <div className="game-stat">
-            <div className="k">If you had always expanded</div>
-            <div className="v">{compact(r.ifExpanded, 1)}</div>
-            <div className="f">a licence whenever affordable</div>
-          </div>
-        </div>
+        <ScoreBars you={r.finalTokens} held={r.ifHeld} expanded={r.ifExpanded} />
 
         <div className="game-log" style={{ marginTop: 16 }}>
           {state.log.length === 0 ? (
@@ -142,6 +126,8 @@ export function Game() {
         </span>
         <span className="ref">one epoch is a month · seed {state.seed}</span>
       </div>
+
+      <YearStrip state={state} current={v} />
 
       <div className="game-market">
         <div className={`flow ${v.regime}`}>
@@ -241,6 +227,62 @@ export function Game() {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * The year so far, one bar per epoch.
+ *
+ * Past epochs show what the flow actually did, the current one pulses, and the
+ * rest are empty slots. It is the difference between being told the market
+ * turned and watching the bars go red under you.
+ */
+/** Your run against the two naive lines, as bars you can read at a glance. */
+function ScoreBars({ you, held, expanded }: { you: number; held: number; expanded: number }) {
+  const rows = [
+    { label: 'You', value: you, mine: true },
+    { label: 'Never expanded', value: held, mine: false },
+    { label: 'Always expanded', value: expanded, mine: false },
+  ].sort((a, b) => b.value - a.value)
+  const peak = Math.max(...rows.map((r) => r.value), 1)
+
+  return (
+    <div className="score-bars">
+      {rows.map((r) => (
+        <div className={`score-row ${r.mine ? 'mine' : ''}`} key={r.label}>
+          <div className="lbl">{r.label}</div>
+          <div className="track">
+            <span style={{ width: `${Math.max(2, (r.value / peak) * 100)}%` }} />
+          </div>
+          <div className="num">{compact(r.value, 1)}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function YearStrip({ state, current }: { state: GameState; current: EpochView }) {
+  const past = [...state.history.map((h) => h.netFlowEth), current.netFlowEth]
+  const peak = Math.max(600, ...past.map((f) => Math.abs(f)))
+
+  return (
+    <div className="year-strip">
+      {Array.from({ length: EPOCHS }, (_, i) => {
+        if (i > current.epoch) return <span key={i} className="slot" />
+        const flow = past[i]
+        const h = Math.max(6, (Math.abs(flow) / peak) * 100)
+        return (
+          <span
+            key={i}
+            className={`bar ${flow >= 0 ? 'up' : 'down'} ${i === current.epoch ? 'now' : ''}`}
+            title={`Epoch ${i + 1}: ${Math.round(flow)} ETH`}
+          >
+            <i style={flow >= 0 ? { height: `${h}%`, bottom: '50%' } : { height: `${h}%`, top: '50%' }} />
+          </span>
+        )
+      })}
+      <span className="axis" />
     </div>
   )
 }

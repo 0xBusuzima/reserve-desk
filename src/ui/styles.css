@@ -643,3 +643,125 @@ footer { border-top: 1px solid var(--line); margin-top: 44px; padding-top: 20px;
   .main { order: 1; }
   .sidebar { order: 2; }
 }
+
+/* ── The game reads as a console, not another readout ────────────────── */
+
+#play .card.game {
+  background:
+    radial-gradient(1200px 300px at 50% -10%, rgba(217, 164, 65, 0.07), transparent 70%),
+    var(--panel);
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 1px rgba(217, 164, 65, 0.08), 0 18px 50px -30px rgba(0, 0, 0, 0.9);
+}
+
+/* The year so far, drawn. Past epochs are real values, the rest are slots. */
+.year-strip {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  height: 64px;
+  margin: 4px 0 16px;
+  padding: 0 2px;
+}
+
+.year-strip .slot,
+.year-strip .bar { position: relative; flex: 1; border-radius: 2px; }
+
+.year-strip .slot {
+  background: repeating-linear-gradient(
+    180deg, var(--line-soft) 0 1px, transparent 1px 5px
+  );
+  opacity: 0.5;
+}
+
+.year-strip .bar i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 2px;
+  display: block;
+}
+.year-strip .bar.up i { background: var(--green); }
+.year-strip .bar.down i { background: var(--red); }
+.year-strip .bar.now i { box-shadow: 0 0 0 1px var(--gold); }
+
+.year-strip .bar.now::after {
+  content: '';
+  position: absolute;
+  inset: -3px -2px;
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  animation: now-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes now-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+.year-strip .axis {
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 1px;
+  background: var(--line);
+}
+
+/* Branch tiles look like things you own, not chart bars. */
+.branches .cells i {
+  height: 34px;
+  border-radius: 4px;
+  position: relative;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.branches .cells i.on::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(8, 9, 10, 0.55);
+}
+
+/* Moves read as a control deck. */
+.game-moves { gap: 10px; }
+.move { transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease; }
+.move:hover:not(:disabled) { transform: translateY(-1px); }
+.move:active:not(:disabled) { transform: translateY(0); }
+
+/* The end screen pays off with a comparison you can read in a second. */
+.score-bars { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.score-row { display: flex; align-items: center; gap: 16px; }
+.score-row .lbl {
+  width: 150px; flex: none; font-size: 13px; color: var(--ink-2);
+}
+.score-row.mine .lbl { color: var(--ink); font-weight: 600; }
+.score-row .track {
+  flex: 1; height: 26px; border-radius: 4px;
+  background: #131619; border: 1px solid var(--line); overflow: hidden;
+}
+.score-row .track span {
+  display: block; height: 100%; background: #2f3841;
+  animation: bar-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.score-row.mine .track span { background: var(--gold); }
+.score-row .num {
+  width: 92px; flex: none; text-align: right;
+  font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--ink-2);
+}
+.score-row.mine .num { color: var(--gold); }
+
+@keyframes bar-in { from { width: 0 !important; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .year-strip .bar.now::after,
+  .score-row .track span { animation: none; }
+}
+
+@media (max-width: 980px) {
+  .score-row .lbl { width: 110px; font-size: 12px; }
+  .score-row .num { width: 72px; font-size: 14px; }
+  .year-strip { height: 52px; gap: 3px; }
+}
