@@ -53,9 +53,9 @@ const nf = new Intl.NumberFormat('en-US')
 
 const baseCss = (w, h) => `
   :root {
-    --bg:#08090a; --panel:#0e1012; --line:#23282d; --line-soft:#191d21;
-    --ink:#e8eaed; --ink-2:#9aa3ac; --ink-3:#5f686f;
-    --gold:#d9a441; --gold-dim:#6b5322; --green:#4fb286;
+    --bg:#131311; --panel:#1a1a18; --line:#2e2d2a; --line-soft:#24231f;
+    --ink:#f8f7f4; --ink-2:#a8a49c; --ink-3:#6e6b64;
+    --gold:#d9a441; --gold-dim:#6b5322; --green:#6fae83;
     --mono:'Consolas','SF Mono','JetBrains Mono',ui-monospace,monospace;
     --sans:'Segoe UI',-apple-system,system-ui,sans-serif;
   }
@@ -146,7 +146,7 @@ async function genesisCard() {
   .grid { margin-top:18px; display:grid; grid-template-columns:repeat(${COLS},1fr); gap:7px; }
   /* Unallocated seats are drawn as real cells, not gaps. The block has to read
      as 200 charters of which most are still open, not as empty space. */
-  .grid i { aspect-ratio:1; border-radius:2px; background:#171b1f; border:1px solid #262b30; }
+  .grid i { aspect-ratio:1; border-radius:2px; background:#1e1d1a; border:1px solid #2b2a26; }
   .grid i.taken { background:var(--gold); border-color:var(--gold); }`,
     body: `
   <div class="headline">
@@ -243,8 +243,8 @@ async function redactionCard() {
   .count.off .n { color:var(--gold); }
   .segs { flex:1; display:flex; gap:4px; padding-bottom:14px; }
   .segs i { flex:1; height:38px; border-radius:2px; }
-  .segs i.on  { background:#254a3a; border:1px solid #2f6049; }
-  .segs i.mid { background:#1e2226; border:1px solid #2b3137; }
+  .segs i.on  { background:#2c4136; border:1px solid #3a5745; }
+  .segs i.mid { background:#232219; border:1px solid #302e28; }
   .segs i.off { background:var(--gold); border:1px solid var(--gold); }
   .chips { margin-top:42px; display:flex; flex-wrap:wrap; gap:11px; }
   .chip {
@@ -369,10 +369,10 @@ async function findingCard() {
   .metric { display:flex; align-items:center; gap:16px; }
   .track { flex:1; height:36px; background:#131619; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
   .track span { display:block; height:100%; }
-  .cap { background:#3f7fd4; }
+  .cap { background:#6d8fd4; }
   .iss { background:var(--gold); }
   .val { width:180px; flex:none; font-family:var(--mono); font-size:16px; font-weight:600; }
-  .cap-t { color:#6ea2e8; }
+  .cap-t { color:#8ba7e0; }
   .iss-t { color:var(--gold); }
   .kicker { margin-top:52px; font-size:21px; color:var(--ink); }
   .caveat { margin-top:18px; font-size:16.5px; color:var(--ink-2); max-width:1120px; }
@@ -424,8 +424,8 @@ async function charterCard() {
   .cells { margin-top:16px; display:flex; gap:10px; }
   .cells i { flex:1; height:70px; border-radius:4px; }
   .cells i.on { background:var(--gold); border:1px solid var(--gold); }
-  .cells i.dim { background:#2a2f35; border:1px solid #363c43; }
-  .cells i.off { background:#141719; border:1px solid #24282d; }
+  .cells i.dim { background:#2b2a26; border:1px solid #3a3833; }
+  .cells i.off { background:#171614; border:1px solid #262521; }
   .side .val { margin-top:16px; font-family:var(--mono); font-size:30px; font-weight:700; }
   .side .sub { margin-top:6px; font-size:15px; color:var(--ink-2); }
   .verdict { margin-top:62px; display:flex; align-items:flex-end; gap:54px; }
@@ -512,8 +512,8 @@ async function gameCard() {
   .rank { width:34px; flex:none; font-family:var(--mono); font-size:19px; color:var(--ink-3); }
   .what { width:390px; flex:none; font-size:19px; color:var(--ink-2); }
   .row.top .what { color:var(--ink); font-weight:600; }
-  .track { flex:1; height:42px; background:#131619; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
-  .track span { display:block; height:100%; background:#2f3841; }
+  .track { flex:1; height:42px; background:#171614; border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  .track span { display:block; height:100%; background:#39372f; }
   .row.top .track span { background:var(--gold); }
   .num { width:150px; flex:none; text-align:right; font-family:var(--mono); font-size:20px; font-weight:700; color:var(--ink-2); }
   .row.top .num { color:var(--gold); }

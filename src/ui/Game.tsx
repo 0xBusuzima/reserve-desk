@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { EPOCHS, newGame, step, view } from '../engine'
 import type { EpochView, GameState, Move } from '../engine'
 import { compact, eth, pct } from './format'
+import { BankBuilding } from './Bank'
 
 /**
  * Twelve Epochs, the playable version of the model.
@@ -153,16 +154,23 @@ export function Game() {
 
       <div className="game-bank">
         <div className="branches">
-          <div className="k">Your branches</div>
-          <div className="cells">
-            {Array.from({ length: state.params.maxBranchesPerCharter }, (_, i) => (
-              <i key={i} className={i < v.yourBranches ? 'on' : ''} />
-            ))}
-          </div>
-          <div className="f">
-            {v.yourBranches} of {state.params.maxBranchesPerCharter} · your share is{' '}
-            {pct(v.yourBranches / v.systemBranches, 3)} of every epoch, and{' '}
-            {compact(v.systemBranches, 0)} branches are competing for it
+          <div className="bank-wrap">
+            <BankBuilding
+              branches={v.yourBranches}
+              max={state.params.maxBranchesPerCharter}
+              dissolved={v.yourBranches === 0}
+            />
+            <div className="bank-side">
+              <div className="k">Your bank</div>
+              <div className="bank-count">
+                {v.yourBranches}
+                <span> of {state.params.maxBranchesPerCharter} branches</span>
+              </div>
+              <div className="f">
+                Your share is {pct(v.yourBranches / v.systemBranches, 3)} of every epoch, against{' '}
+                {compact(v.systemBranches, 0)} branches across the system.
+              </div>
+            </div>
           </div>
         </div>
         <div className="purse">
