@@ -369,7 +369,12 @@ tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
 td.num { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 th.num { text-align: right; }
 
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; max-width: 100%; }
+
+/* A card is often a grid or flex child, where min-width defaults to the
+   content size and a wide table can push the whole page sideways. */
+.card { min-width: 0; }
+.card > .table-wrap > table { min-width: max-content; }
 
 /* ── Charts ─────────────────────────────────────────────────────────── */
 
