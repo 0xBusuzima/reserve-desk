@@ -133,6 +133,7 @@ node scripts/make-card.mjs --card finding    # just one
 | [`share/genesis-card.png`](share/genesis-card.png) | Founding Charters allocated, as a 200 square grid | `public/genesis.json` |
 | [`share/redaction-card.png`](share/redaction-card.png) | How many parameters the whitepaper states against how many it holds back | the `PROVENANCE` table in `src/engine/params.ts` |
 | [`share/finding-card.png`](share/finding-card.png) | The sign versus size result, as paired bars that cross over | `share/findings.json`, measured by `scripts/measure-findings.mjs` |
+| [`share/launch-card.png`](share/launch-card.png) | Section 14 as it stands, fifteen labels against fifteen blank bars, with a countdown | `public/whitepaper.json`, written by `scripts/watch-whitepaper.mjs` |
 | [`share/charter-card.png`](share/charter-card.png) | What a Founding Charter is worth, one branch against ten | the same `share/findings.json` |
 | `public/og.png` | The link preview, deliberately sparser since it is read at thumbnail size | both of the above |
 

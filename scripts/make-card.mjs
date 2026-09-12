@@ -533,7 +533,64 @@ async function gameCard() {
   })
 }
 
+/**
+ * The launch watch. Draws section 14 as it actually stands: fifteen labels and
+ * fifteen blank bars, at the widths the whitepaper itself renders them.
+ */
+async function launchCard() {
+  const w = JSON.parse(await readFile(resolve(ROOT, 'public/whitepaper.json'), 'utf8'))
+  const launch = Date.parse('2026-09-14T00:00:00Z')
+  const left = Math.max(0, launch - Date.now())
+  const days = Math.floor(left / 86400000)
+  const hours = Math.floor((left % 86400000) / 3600000)
+
+  const rows = w.rows
+    .map(
+      (r) => `
+      <div class="prow">
+        <span class="plabel">${r.label}</span>
+        <span class="${r.redacted ? 'redact' : 'value'}"${
+          r.redacted ? ` style="width:${Math.max(40, r.width * 5)}px"` : ''
+        }>${r.redacted ? '' : r.value}</span>
+      </div>`,
+    )
+    .join('')
+
+  return page({
+    eyebrow: 'Launch watch · whitepaper §14',
+    footL: `Checked ${new Date(w.checkedAt).toISOString().slice(0, 16).replace('T', ' ')} UTC · rechecked every 30 minutes`,
+    css: `
+  .lede { margin-top:40px; display:flex; align-items:flex-end; gap:44px; }
+  .lede h1 { font-size:40px; line-height:1.15; font-weight:600; letter-spacing:-.015em; max-width:620px; }
+  .lede h1 em { font-style:normal; color:var(--gold); }
+  .clock { flex:none; text-align:right; }
+  .clock .t { font-family:var(--mono); font-size:60px; line-height:.9; font-weight:700; color:var(--gold); }
+  .clock .l { font-family:var(--mono); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); margin-top:10px; }
+  .table { margin-top:52px; display:grid; grid-template-columns:1fr 1fr; gap:17px 46px; }
+  .prow { display:flex; align-items:center; justify-content:space-between; gap:18px; padding-bottom:13px; border-bottom:1px solid var(--line-soft); }
+  .plabel { font-size:16.5px; color:var(--ink-2); }
+  .redact { height:17px; border-radius:2px; background:#38352f; border:1px solid #454138; flex:none; }
+  .value { font-family:var(--mono); font-size:16px; color:var(--gold); font-weight:700; }
+  .after { margin-top:44px; font-size:18px; color:var(--ink-2); max-width:1320px; }
+  .after b { color:var(--ink); font-weight:600; }`,
+    body: `
+  <div class="lede">
+    <h1>Fifteen launch parameters. <em>Fifteen blank bars.</em></h1>
+    <div class="clock">
+      <div class="t">${days}d ${String(hours).padStart(2, '0')}h</div>
+      <div class="l">until 14 September</div>
+    </div>
+  </div>
+  <div class="table">${rows}</div>
+  <div class="after">
+    Every number this simulator had to assume is one of these. <b>The site rechecks the table
+    every thirty minutes</b>, and the moment a bar turns into a value the guesses come out.
+  </div>`,
+  })
+}
+
 const CARDS = {
+  launch: launchCard,
   game: gameCard,
   genesis: genesisCard,
   redaction: redactionCard,

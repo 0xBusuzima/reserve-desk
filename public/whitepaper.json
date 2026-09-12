@@ -3,8 +3,100 @@
   "parameters": 15,
   "redactedCount": 15,
   "publishedLabels": [],
+  "rows": [
+    {
+      "label": "Hard cap",
+      "width": 16,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Genesis liquidity",
+      "width": 26,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Base issuance",
+      "width": 11,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Multiplier m",
+      "width": 30,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Epoch",
+      "width": 7,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Founding Charters",
+      "width": 21,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Charter auctions",
+      "width": 28,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Branches per charter",
+      "width": 8,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Expansion licenses",
+      "width": 24,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "License floor",
+      "width": 19,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Trading fee",
+      "width": 14,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Fee split",
+      "width": 18,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Resolution fee",
+      "width": 25,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Dormancy",
+      "width": 22,
+      "value": null,
+      "redacted": true
+    },
+    {
+      "label": "Buyback execution",
+      "width": 27,
+      "value": null,
+      "redacted": true
+    }
+  ],
   "stillPromised": true,
   "bundle": "assets/whitepaper-D3XPDort.js",
-  "checkedAt": "2026-09-12T09:11:27.194Z",
+  "checkedAt": "2026-09-12T09:33:35.890Z",
   "source": "https://www.standardreserve.xyz/whitepaper/"
 }

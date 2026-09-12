@@ -45,11 +45,18 @@ function readTable(js) {
   const block = /\[\["Hard cap",[\s\S]{0,1200}?\]\]/.exec(js)
   if (!block) return null
 
-  const rows = [...block[0].matchAll(/\["([^"]+)",([^\],]+)\]/g)].map(([, label, raw]) => ({
-    label,
-    raw: raw.trim(),
-    redacted: /^\d+(\.\d+)?$/.test(raw.trim()),
-  }))
+  const rows = [...block[0].matchAll(/\["([^"]+)",([^\],]+)\]/g)].map(([, label, raw]) => {
+    const value = raw.trim()
+    const redacted = /^\d+(\.\d+)?$/.test(value)
+    return {
+      label,
+      // While redacted the second element is the width of the bar standing in
+      // for the value, which is worth keeping: it is what the card draws.
+      width: redacted ? Number(value) : null,
+      value: redacted ? null : value,
+      redacted,
+    }
+  })
   return rows.length > 0 ? rows : null
 }
 
@@ -72,6 +79,7 @@ async function main() {
     parameters: rows.length,
     redactedCount,
     publishedLabels: published,
+    rows,
     stillPromised,
     bundle: asset[0],
     checkedAt: new Date().toISOString(),
@@ -85,8 +93,13 @@ async function main() {
     // First run.
   }
 
+  // A rebuild moves the bundle hash without changing anything that matters, so
+  // only a real status change is worth a commit. A missing field counts too,
+  // otherwise a snapshot written by an older version of this script never
+  // picks up a newly recorded one.
+  const schemaGap = !prev || !Array.isArray(prev.rows) || prev.rows.length !== rows.length
   const changed =
-    !prev || prev.redactedCount !== next.redactedCount || prev.redacted !== next.redacted
+    schemaGap || prev.redactedCount !== next.redactedCount || prev.redacted !== next.redacted
 
   console.log(
     `${redactedCount}/${rows.length} launch values still redacted` +
