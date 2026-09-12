@@ -16,11 +16,19 @@ export const GENESIS_ALLOCATED = 350
 /** When the fallback above was last checked, ISO date. */
 export const GENESIS_CHECKED = '2026-09-08'
 
+/**
+ * Launch, announced by the team on 11 September 2026: "The Standard Reserve is
+ * coming on September 14. Both audits have found 0 critical vulnerabilities."
+ * No hour was given, so the countdown runs to midnight UTC and says so.
+ */
+export const LAUNCH_ISO = '2026-09-14T00:00:00Z'
+
 export const LINKS = {
   site: 'https://www.standardreserve.xyz/',
   protocol: 'https://www.standardreserve.xyz/app/protocol/',
   whitepaper: 'https://www.standardreserve.xyz/whitepaper/',
   mint: 'https://www.standardreserve.xyz/app/mint/',
   x: 'https://x.com/standard_rsv',
+  launchPost: 'https://x.com/standard_rsv/status/2098183945926119589',
   repo: 'https://github.com/0xBusuzima/reserve-desk',
 }

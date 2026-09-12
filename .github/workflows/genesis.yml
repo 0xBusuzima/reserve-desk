@@ -1,4 +1,4 @@
-name: Track the genesis mint
+name: Track the mint and the whitepaper
 
 # Reads the allocated count off the official mint page and commits it when it
 # moves, then redeploys so the published page serves the new number.
@@ -24,7 +24,7 @@ jobs:
     permissions:
       contents: write
     outputs:
-      changed: ${{ steps.fetch.outputs.changed }}
+      changed: ${{ steps.fetch.outputs.changed == 'true' || steps.whitepaper.outputs.changed == 'true' }}
       allocated: ${{ steps.fetch.outputs.allocated }}
       total: ${{ steps.fetch.outputs.total }}
     steps:
@@ -36,13 +36,24 @@ jobs:
       - id: fetch
         run: node scripts/fetch-genesis.mjs
 
-      - name: Commit when the count moved
-        if: steps.fetch.outputs.changed == 'true'
+      # Launch is announced for 14 September and the team said more detail is
+      # coming, so the launch parameter table is worth watching on the same
+      # schedule. The moment those values stop being blank bars, the site says so.
+      - id: whitepaper
+        run: node scripts/watch-whitepaper.mjs
+        continue-on-error: true
+
+      - name: Commit when either moved
+        if: steps.fetch.outputs.changed == 'true' || steps.whitepaper.outputs.changed == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/genesis.json
-          git commit -m "Genesis mint: ${{ steps.fetch.outputs.allocated }}/${{ steps.fetch.outputs.total }} allocated"
+          git add public/genesis.json public/whitepaper.json
+          if [ "${{ steps.whitepaper.outputs.redacted }}" = "false" ]; then
+            git commit -m "Launch parameters: ${{ steps.whitepaper.outputs.redactedCount }} of 15 still redacted"
+          else
+            git commit -m "Genesis mint: ${{ steps.fetch.outputs.allocated }}/${{ steps.fetch.outputs.total }} allocated"
+          fi
           git push
 
   publish:

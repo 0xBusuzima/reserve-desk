@@ -136,3 +136,69 @@ export function usePublishedSweep(): PublishedSweep | null {
 
   return sweep
 }
+
+
+/**
+ * Whether the whitepaper's launch parameter table is still redacted.
+ *
+ * Refreshed by scripts/watch-whitepaper.mjs on the same schedule as the mint
+ * count. The moment those fifteen values stop being blank bars, everything on
+ * this page marked as an assumption can be replaced with the real number, and
+ * the banner is how you find out.
+ */
+export interface WhitepaperWatch {
+  redacted: boolean
+  parameters: number
+  redactedCount: number
+  publishedLabels: string[]
+  checkedAt: string
+}
+
+export function useWhitepaperWatch(): WhitepaperWatch | null {
+  const [watch, setWatch] = useState<WhitepaperWatch | null>(null)
+
+  useEffect(() => {
+    let live = true
+    fetch(`${import.meta.env.BASE_URL}whitepaper.json`, { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d: any) => {
+        if (!live) return
+        if (typeof d?.redactedCount !== 'number') return
+        setWatch({
+          redacted: !!d.redacted,
+          parameters: d.parameters ?? 0,
+          redactedCount: d.redactedCount,
+          publishedLabels: Array.isArray(d.publishedLabels) ? d.publishedLabels : [],
+          checkedAt: typeof d.checkedAt === 'string' ? d.checkedAt : '',
+        })
+      })
+      .catch(() => {
+        // No banner rather than a wrong one.
+      })
+    return () => {
+      live = false
+    }
+  }, [])
+
+  return watch
+}
+
+/** Time left until `iso`, refreshed every second while it matters. */
+export function useCountdown(iso: string): { days: number; hours: number; mins: number; secs: number; past: boolean } {
+  const target = Date.parse(iso)
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  const left = Math.max(0, target - now)
+  return {
+    days: Math.floor(left / 86400000),
+    hours: Math.floor((left % 86400000) / 3600000),
+    mins: Math.floor((left % 3600000) / 60000),
+    secs: Math.floor((left % 60000) / 1000),
+    past: left <= 0,
+  }
+}

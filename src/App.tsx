@@ -12,8 +12,8 @@ import {
   simulate,
 } from './engine'
 import type { Params } from './engine'
-import { LINKS } from './config'
-import { since, useGenesis, usePublishedSweep } from './useGenesis'
+import { LAUNCH_ISO, LINKS } from './config'
+import { since, useCountdown, useGenesis, usePublishedSweep, useWhitepaperWatch } from './useGenesis'
 import { Chart } from './ui/Chart'
 import { ParamControls } from './ui/Controls'
 import { Desk, Stat } from './ui/Desk'
@@ -52,6 +52,8 @@ export default function App() {
   const [flash, setFlash] = useState<string | null>(null)
 
   const genesis = useGenesis()
+  const watch = useWhitepaperWatch()
+  const countdown = useCountdown(LAUNCH_ISO)
   const narrow = useIsNarrow()
   const [labOpen, setLabOpen] = useState(false)
   const showParams = !narrow || labOpen
@@ -250,6 +252,47 @@ export default function App() {
               <a href="#known">What is actually known</a>
             </nav>
           </header>
+
+          <div className={`launch-bar ${countdown.past ? 'live' : ''}`}>
+            <div className="lb-left">
+              <span className="lb-dot" />
+              <span className="lb-label">
+                {countdown.past ? 'Launch day' : 'Launch'}
+              </span>
+              <a href={LINKS.launchPost} target="_blank" rel="noreferrer" className="lb-when">
+                14 September
+              </a>
+            </div>
+
+            {!countdown.past && (
+              <div className="lb-clock">
+                <b>{countdown.days}</b>d <b>{String(countdown.hours).padStart(2, '0')}</b>h{' '}
+                <b>{String(countdown.mins).padStart(2, '0')}</b>m{' '}
+                <b>{String(countdown.secs).padStart(2, '0')}</b>s
+              </div>
+            )}
+
+            <div className="lb-right">
+              {watch === null ? (
+                <span className="lb-muted">checking the whitepaper</span>
+              ) : watch.redacted ? (
+                <>
+                  <span className="badge assumed">STILL BLANK</span>
+                  <span className="lb-muted">
+                    all {watch.parameters} launch values, checked {since(watch.checkedAt)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="badge whitepaper">PUBLISHED</span>
+                  <span className="lb-muted">
+                    {watch.parameters - watch.redactedCount} of {watch.parameters} launch values are
+                    out: {watch.publishedLabels.slice(0, 4).join(', ')}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
 
           <div className="disclaimer">
             <strong>Unofficial.</strong> I am not affiliated with The Standard Reserve and this is
