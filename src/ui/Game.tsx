@@ -84,7 +84,7 @@ export function Game() {
       <div className="card game">
         <div className="game-head">
           <span className="game-tag">RUN COMPLETE</span>
-          <span className="ref">12 epochs · seed {state.seed}</span>
+          <span className="ref">{`${EPOCHS} epochs · seed ${state.seed}`}</span>
         </div>
 
         <div className={`game-grade ${r.grade}`}>{gradeLabel(r.grade)}</div>
@@ -123,9 +123,9 @@ export function Game() {
     <div className="card game">
       <div className="game-head">
         <span className="game-tag">
-          EPOCH {v.epoch + 1} <span className="of">of {EPOCHS}</span>
+          <span>{`EPOCH ${v.epoch + 1}`}</span> <span className="of">{`of ${EPOCHS}`}</span>
         </span>
-        <span className="ref">one epoch is a month · seed {state.seed}</span>
+        <span className="ref">{`one epoch is a month · seed ${state.seed}`}</span>
       </div>
 
       <YearStrip state={state} current={v} />
@@ -134,20 +134,23 @@ export function Game() {
         <div className={`flow ${v.regime}`}>
           <div className="k">Net ETH through the pool</div>
           <div className="v">
-            {v.netFlowEth >= 0 ? '+' : ''}
-            {eth(v.netFlowEth, 0)}
+            <span>{`${v.netFlowEth >= 0 ? '+' : ''}${eth(v.netFlowEth, 0)}`}</span>
           </div>
-          <div className="f">{v.regime === 'expansion' ? 'capital coming in' : 'capital leaving'}</div>
+          <div className="f">
+            <span>{v.regime === 'expansion' ? 'capital coming in' : 'capital leaving'}</span>
+          </div>
         </div>
         <div className="policy">
           <div className="k">Issuance multiplier</div>
           <div className="v">{v.m.toFixed(2)}×</div>
           <div className="f">
-            {v.m <= state.params.mMin + 1e-6
-              ? 'on the floor, cuts have nowhere left to go'
-              : v.regime === 'expansion'
-                ? 'a positive signal raises it one step'
-                : 'a negative signal cuts it three times faster'}
+            <span>
+              {v.m <= state.params.mMin + 1e-6
+                ? 'on the floor, cuts have nowhere left to go'
+                : v.regime === 'expansion'
+                  ? 'a positive signal raises it one step'
+                  : 'a negative signal cuts it three times faster'}
+            </span>
           </div>
         </div>
       </div>
@@ -163,12 +166,13 @@ export function Game() {
             <div className="bank-side">
               <div className="k">Your bank</div>
               <div className="bank-count">
-                {v.yourBranches}
-                <span> of {state.params.maxBranchesPerCharter} branches</span>
+                <span>{v.yourBranches}</span>
+                <span>{` of ${state.params.maxBranchesPerCharter} branches`}</span>
               </div>
               <div className="f">
-                Your share is {pct(v.yourBranches / v.systemBranches, 3)} of every epoch, against{' '}
-                {compact(v.systemBranches, 0)} branches across the system.
+                <span>
+                  {`Your share is ${pct(v.yourBranches / v.systemBranches, 3)} of every epoch, against ${compact(v.systemBranches, 0)} branches across the system.`}
+                </span>
               </div>
             </div>
           </div>
@@ -184,7 +188,7 @@ export function Game() {
           </div>
           <div className="row muted">
             <span>Earned this epoch</span>
-            <strong>+{compact(v.earnedThisEpoch, 1)}</strong>
+            <strong>{`+${compact(v.earnedThisEpoch, 1)}`}</strong>
           </div>
         </div>
       </div>
@@ -200,11 +204,13 @@ export function Game() {
         <button className="move expand" disabled={!canExpand} onClick={() => play({ kind: 'expand' })}>
           <span className="t">Open a branch</span>
           <span className="d">
-            {v.yourBranches >= state.params.maxBranchesPerCharter
-              ? 'at the ten branch cap'
-              : `${compact(v.licensePrice, 1)} burned · pays back in ${
-                  Number.isFinite(v.licensePayback) ? Math.round(v.licensePayback) : '?'
-                } days`}
+            <span>
+              {v.yourBranches >= state.params.maxBranchesPerCharter
+                ? `at the ${state.params.maxBranchesPerCharter} branch cap`
+                : `${compact(v.licensePrice, 1)} burned · pays back in ${
+                    Number.isFinite(v.licensePayback) ? Math.round(v.licensePayback) : '?'
+                  } days`}
+            </span>
           </span>
         </button>
 
@@ -220,8 +226,11 @@ export function Game() {
         >
           <span className="t">Retire a branch</span>
           <span className="d">
-            {compact(wouldKeep, 1)} to your wallet · {pct(v.exitFee, 0)} fee
-            {v.yourBranches === 1 ? ' · burns your charter' : ''}
+            <span>
+              {`${compact(wouldKeep, 1)} to your wallet · ${pct(v.exitFee, 0)} fee${
+                v.yourBranches === 1 ? ' · burns your charter' : ''
+              }`}
+            </span>
           </span>
         </button>
       </div>
